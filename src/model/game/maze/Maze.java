@@ -1,0 +1,505 @@
+package model.game.maze;
+
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.ArrayList;
+
+import model.game.agent.AgentAction;
+import model.game.agent.PositionAgent;
+import model.game.agent.AgentAction.Direction;
+
+/**
+ * The model of the maze
+ */
+public class Maze implements Serializable, Cloneable {
+	/** An enum for each entity present in the maze (and empty for specific return values) */
+    public enum EntityType { Pacman, Ghost, Capsule, Food, Wall, Empty }
+
+	private static final long serialVersionUID = 1L;
+
+	/** The width of the maze (in cells) */
+	private int size_x;
+	/** The height of the maze (in cells) */
+	private int size_y;
+
+	/** a 2d array of boolean indicating wether a cell is a wall*/
+	private boolean walls[][];
+	/** a 2d array of boolean indicating wether a cell is a food*/
+	private boolean food[][];
+	/** a 2d array of boolean indicating wether a cell is a capsule*/
+	private boolean capsules[][];
+
+	/** an array of PositionAgent for the position of the pacmans at loading*/
+	private ArrayList<PositionAgent> pacman_start;
+	/** an array of PositionAgent for the position of the ghosts at loading*/
+	private ArrayList<PositionAgent> ghosts_start;
+	/** an array of Color for the colors of the ghosts at loading*/
+	private ArrayList<Color> ghosts_colors;
+
+	/** does the maze warp on the x axis*/
+	protected boolean warp_x;
+	/** does the maze warp on the y axis*/
+	protected boolean warp_y;
+
+	/**
+     * Creates a Maze from a path to a layout file
+     * @param filename the path to the layout file
+     */
+    public Maze(String filename) throws Exception {
+		try {
+			System.out.println("Layout file is " + filename);
+			// Lecture du fichier pour determiner la taille du labyrinthe
+			InputStream ips = new FileInputStream(filename);
+			InputStreamReader ipsr = new InputStreamReader(ips);
+			BufferedReader br = new BufferedReader(ipsr);
+			String ligne;
+			int nbX = 0;
+			int nbY = 0;
+			while ((ligne = br.readLine()) != null) {
+				ligne = ligne.trim();
+				if (nbX == 0) {
+					nbX = ligne.length();
+				} else if (nbX != ligne.length()) {
+					ips.close();
+					br.close();
+					throw new Exception("Wrong Input Format: all lines must have the same size");
+				}
+				nbY++;
+			}
+			br.close();
+			System.out.println("### Size of maze is " + nbX + ";" + nbY);
+
+			// Initialisation du labyrinthe
+			size_x = nbX;
+			size_y = nbY;
+			walls = new boolean[size_x][size_y];
+			food = new boolean[size_x][size_y];
+			capsules = new boolean[size_x][size_y];
+
+			pacman_start = new ArrayList<PositionAgent>();
+			ghosts_start = new ArrayList<PositionAgent>();
+			ghosts_colors = new ArrayList<Color>();
+
+			// Lecture du fichier pour mettre a jour le labyrinthe
+			ips = new FileInputStream(filename);
+			ipsr = new InputStreamReader(ips);
+			br = new BufferedReader(ipsr);
+			int y = 0;
+			while ((ligne = br.readLine()) != null) {
+				ligne = ligne.trim();
+
+				for (int x = 0; x < ligne.length(); x++) {
+					if (ligne.charAt(x) == '%')
+						walls[x][y] = true;
+					else
+						walls[x][y] = false;
+
+					if (ligne.charAt(x) == '.')
+						food[x][y] = true;
+					else
+						food[x][y] = false;
+
+					if (ligne.charAt(x) == 'o')
+						capsules[x][y] = true;
+					else
+						capsules[x][y] = false;
+
+					if (ligne.charAt(x) == 'P') {
+						pacman_start.add(new PositionAgent(x, y, Direction.STOP));
+					}
+					if (ligne.charAt(x) == 'G') {
+						ghosts_start.add(new PositionAgent(x, y, Direction.STOP));
+					}
+
+					
+					if (ligne.charAt(x) == 'w') {
+						if (x == 0) warp_x = true;
+						if (y == 0) warp_y = true;
+					}
+				}
+				y++;
+			}
+			setGhosts_start(ghosts_start);
+			br.close();
+
+			if (pacman_start.size() == 0)
+				throw new Exception("Wrong input format: must specify a Pacman start");
+
+			// On verifie que le labyrinthe est clos
+			// for (int x = 0; x < size_x; x++)
+			// 	if (!walls[x][0])
+			// 		throw new Exception("Wrong input format: the maze must be closed");
+			// for (int x = 0; x < size_x; x++)
+			// 	if (!walls[x][size_y - 1])
+			// 		throw new Exception("Wrong input format: the maze must be closed");
+			// for (y = 0; y < size_y; y++)
+			// 	if (!walls[0][y])
+			// 		throw new Exception("Wrong input format: the maze must be closed");
+			// for (y = 0; y < size_y; y++)
+			// 	if (!walls[size_x - 1][y])
+			// 		throw new Exception("Wrong input format: the maze must be closed");
+			System.out.println("### Maze loaded.");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Error at file loading: " + e.getMessage());
+		}
+	}
+
+	/**
+	 * Returns the width of the maze (in cells)
+	 * @return the width of the maze
+	 */
+	public int getSizeX() {
+		return (size_x);
+	}
+	/**
+	 * Returns the height of the maze (in cells)
+	 * @return the height of the maze
+	 */
+	public int getSizeY() {
+		return (size_y);
+	}
+
+	/**
+	 * Returns true if the maze warps on the x axis
+	 * @return wether the maze warps on the x axis
+	 */
+	public boolean getWarpX() {
+		return warp_x;
+	}
+	/**
+	 * Returns true if the maze warps on the y axis
+	 * @return wether the maze warps on the y axis
+	 */
+	public boolean getWarpY() {
+		return warp_y;
+	}
+
+	/**
+	 * wether the cell is a wall
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @return True is the cell is a wall
+	 */
+	public boolean isWall(int x, int y) {
+		return (walls[warpX(x)][warpY(y)]);
+	}
+	/**
+	 * wether the cell is a food
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @return True is the cell is a food
+	 */
+	public boolean isFood(int x, int y) {
+		return (food[warpX(x)][warpY(y)]);
+	}
+	/**
+	 * wether the cell is a capsule
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @return True is the cell is a capsule
+	 */
+	public boolean isCapsule(int x, int y) {
+		return (capsules[warpX(x)][warpY(y)]);
+	}
+
+	/**
+	 * add or remove the food from a cell
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @param b wether the cell should have a food or not
+	 */
+	public void setFood(int x, int y, boolean b) {
+		food[warpX(x)][warpY(y)] = b;
+	}
+	/**
+	 * add or remove the capsule from a cell
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @param b wether the cell should have a capsule or not
+	 */
+	public void setCapsule(int x, int y, boolean b) {
+		capsules[warpX(x)][warpY(y)] = b;
+	}
+	
+	/**
+	 * get the static entity of the cell
+	 * <p>
+	 * if multiple static entities are present on the same cell, returns the first checked
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @return the static entity of the cell (Wall, Food, Capsule or Empty)
+	 */
+	public EntityType getStaticEntity(int x, int y) {
+		if (isWall(x, y)) return EntityType.Wall;
+		if (isFood(x, y)) return EntityType.Food;
+		if (isCapsule(x, y)) return EntityType.Capsule;
+		return EntityType.Empty;
+	}
+	/**
+	 * removes a static entity from the cell (except for walls)
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 */
+	public void clearStaticEntity(int x, int y) {
+		if (isWall(x, y)) return;
+		else if (isFood(x, y)) setFood(x, y, false);
+		else if (isCapsule(x, y)) setCapsule(x, y, false);
+	}
+	/**
+	 * checks if the cell contains the given entity
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @param entityType the entity to check
+	 * @return True if the entity is present
+	 */
+	public boolean isEntity(int x, int y, EntityType entityType) {
+		switch (entityType) {
+			case Wall: return isWall(x, y);
+			case Food: return isFood(x, y);
+			case Capsule: return isCapsule(x, y);
+			case Ghost: return getGhosts_start().contains(new PositionAgent(x, y, null));
+			case Pacman: return getPacman_start().contains(new PositionAgent(x, y, null));
+			case Empty: return !isWall(x, y);
+			default: return false;
+		}
+	}
+	/**
+	 * checks if the cell contains at least one of the given entities
+	 * @param x the x coordinate of the cell
+	 * @param y the y coordinate of the cell
+	 * @param entitiesType an array of entities to check
+	 * @return True if one of the entities is present
+	 */
+	public boolean isEntity(int x, int y, ArrayList<EntityType> entitiesType) {
+		for (EntityType entity : entitiesType) {
+            if (isEntity(x, y, entity)) return true;
+        }
+		return false;
+	}
+	/**
+	 * get the position of the closest static entity of the given type
+	 * @param x the x coordinate of the cell from wich the distance is computed
+	 * @param y the y coordinate of the cell from wich the distance is computed
+	 * @param entityType the entity to search
+	 * @return the position of the closest static entity found of the given type
+	 */
+	protected PositionAgent getClosestStaticEntity(int x, int y, EntityType entityType) {
+		PositionAgent result = null;
+		double d = -1;
+
+		for (int i = 0; i < getSizeX(); i++)
+		for (int j = 0; j < getSizeX(); j++) {
+			if (!isEntity(i, j, entityType)) continue;
+
+            double new_d = new PositionAgent(x, y, null).distance(new PositionAgent(i, j, null), this);
+            if (d == -1 || new_d < d) {
+				d = new_d;
+				result = new PositionAgent(i, j, null);
+			}
+		}
+		return result;
+	}
+	/**
+	 * get the position of the closest agent of the given type
+	 * @param x the x coordinate of the cell from wich the distance is computed
+	 * @param y the y coordinate of the cell from wich the distance is computed
+	 * @param ghost whether to search a ghost or a pacman
+	 * @return the position of the closest agent found of the given type
+	 */
+	protected PositionAgent getClosestAgent(int x, int y, boolean ghost) {
+		PositionAgent result = null;
+		double d = -1;
+
+        for (PositionAgent p : ghost ? getGhosts_start() : getPacman_start() ) {
+            double new_d = new PositionAgent(x, y, null).distance(p, this);
+            if (d == -1 || new_d < d) {
+				d = new_d;
+				result = new PositionAgent(p.getX(), p.getY(), null);
+			}
+        }
+		return result;
+	}
+	/**
+	 * get the position of the closest entity of the given type
+	 * @param x the x coordinate of the cell from wich the distance is computed
+	 * @param y the y coordinate of the cell from wich the distance is computed
+	 * @param entityType the entity to search
+	 * @return the position of the closest entity found of the given type
+	 */
+	public PositionAgent getClosestEntity(int x, int y, EntityType entityType) {
+		switch (entityType) {
+			case Ghost: return getClosestAgent(x, y, true);
+			case Pacman: return getClosestAgent(x, y, false);
+			default: return getClosestStaticEntity(x, y, entityType);
+		}
+	}
+	
+	/**
+	 * Removes from the list of agent positions all positions that are not in the maze
+	 */
+	public void removeOutsideAgents() {
+		var p_iter = pacman_start.listIterator();
+        while (p_iter.hasNext()) {
+            PositionAgent pos = p_iter.next();
+            if (pos.getX() < 0 || pos.getY() < 0) {
+                p_iter.remove();
+            }
+        }
+		
+		var g_iter = ghosts_start.listIterator();
+		var c_iter = ghosts_colors.listIterator();
+        while (g_iter.hasNext()) {
+            PositionAgent pos = g_iter.next();
+			c_iter.next();
+            if (pos.getX() < 0 || pos.getY() < 0) {
+                g_iter.remove();
+				c_iter.remove();
+            }
+        }
+	}
+
+	/**
+	 * check wether the given action is legal from the given position
+	 * <p>
+	 * a move is illegal if it goes through a wall
+	 * @param pos the position from wich start the action
+	 * @param action the action to check
+	 * @return True if the action is legal, False else
+	 */
+	public boolean isLegalMove(PositionAgent pos, AgentAction action) {
+		PositionAgent next_pos = pos.add_action(action);
+		warpPosition(next_pos);
+        if (isWall(next_pos.getX(), next_pos.getY())) return false;
+        return true;
+    }
+	/**
+	 * warps the position arround the edges of the screen
+	 * @param pos the position to warp
+	 */
+	public void warpPosition(PositionAgent pos) {
+		pos.setX(warpX(pos.getX()));
+		pos.setY(warpY(pos.getY()));
+	}
+	/**
+	 * warps an x coordinate arround the edges of the screen
+	 * @param x the x coordinate to warp
+	 * @return the warped coordinate
+	 */
+	int warpX(int x) {
+		return x - (int)Math.floor((double)x / size_x) * size_x;
+	}
+	/**
+	 * warps a y coordinate arround the edges of the screen
+	 * @param y the y coordinate to warp
+	 * @return the warped coordinate
+	 */
+	int warpY(int y) {
+		return y - (int)Math.floor((double)y / size_y) * size_y;
+	}
+
+	/**
+	 * a getter to the number of pacman present in the maze
+	 * @return the number of pacman present in the maze
+	 */
+	public int getInitNumberOfPacmans() {
+		return (pacman_start.size());
+	}
+	/**
+	 * a getter to the number of ghosts present in the maze
+	 * @return the number of ghosts present in the maze
+	 */
+	public int getInitNumberOfGhosts() {
+		return (ghosts_start.size());
+	}
+
+	/**
+	 * a getter to the list of pacman positions in the maze
+	 * @return the list of pacman positions in the maze
+	 */
+	public ArrayList<PositionAgent> getPacman_start() {
+		return pacman_start;
+	}
+	/**
+	 * a setter to the list of pacman positions in the maze
+	 * @param pacman_start the new list of positions
+	 */
+	public void setPacman_start(ArrayList<PositionAgent> pacman_start) {
+		this.pacman_start = pacman_start;
+	}
+
+	/**
+	 * a getter to the list of ghost positions in the maze
+	 * @return the list of ghost positions in the maze
+	 */
+	public ArrayList<PositionAgent> getGhosts_start() {
+		return ghosts_start;
+	}
+	/**
+	 * a setter to the list of ghost positions in the maze
+	 * <p>
+	 * this also resets the colors of the ghosts if the number of elements does not match
+	 * @param ghosts_start the new list of positions
+	 */
+	public void setGhosts_start(ArrayList<PositionAgent> ghosts_start) {
+		if (this.ghosts_colors.size() != ghosts_start.size()) {
+			ghosts_colors.clear();
+			float v = (float)Math.random();
+			for (int i = 0; i < ghosts_start.size(); i++) {
+				ghosts_colors.add(new Color(Color.HSBtoRGB((float)i / ghosts_start.size() + v, 1, 1)));
+			}
+		}
+		this.ghosts_start = ghosts_start;
+	}
+	/**
+	 * a getter to the list of ghost colors in the maze
+	 * @return the list of ghost colors in the maze
+	 */
+	public ArrayList<Color> getGhosts_colors() {
+		return ghosts_colors;
+	}
+
+	public String toString() {
+		String s = "Maze\n";
+		s += plateauToString();
+		s += "\nPosition agents fantom :";
+		for (PositionAgent pa : ghosts_start) {
+			s += pa + " ";
+		}
+		s += "\nPosition agents pacman :";
+		for (PositionAgent pa : pacman_start) {
+			s += pa + " ";
+		}
+		return s;
+	}
+
+	public String plateauToString() {
+		String s = "";
+		for (int i = 0; i < size_x; i++) {
+			for (int j = 0; j < size_y; j++) {
+				if (walls[i][j])
+					s += "X";
+				else if (food[i][j])
+					s += "f";
+				else if (capsules[i][j])
+					s += "c";
+				else
+					s += " ";
+			}
+			s += "\n";
+		}
+		return s;
+	}
+
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return (Maze) super.clone();
+	}
+	
+}
