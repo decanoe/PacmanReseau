@@ -2,6 +2,7 @@ package server.room;
 
 import java.util.HashMap;
 
+import model.game.maze.Maze;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
 import model.protocol.Queries.GoToRoomQuery;
@@ -12,6 +13,7 @@ public class GameRoom extends Room {
     LobyRoom loby;
 
     boolean running = false;
+    Maze maze = null;
 
     HashMap<RoomSocketThread, ChoseRoleQuery.Choice> choices;
 
@@ -41,7 +43,12 @@ public class GameRoom extends Room {
     }
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
-        query.fillAnswer(isRunning()).send(socket);
+        if (isRunning()) {
+            query.fillAnswerRunning(maze).send(socket);
+        }
+        else {
+            query.fillAnswerNotRunning().send(socket);
+        }
         return true;
     }
     @Override
@@ -63,8 +70,13 @@ public class GameRoom extends Room {
             if (choices.getOrDefault(socket, ChoseRoleQuery.Choice.None) == ChoseRoleQuery.Choice.None) return;
         }
 
-        running = true;
-        sendToAll(new GameStateQuery(running));
+        try {
+            maze = new Maze("./layouts/bigMaze.lay");
+            running = true;
+            sendToAll(new GameStateQuery().fillAnswerRunning(maze));
+        } catch (Exception e) {
+            System.err.println(e);
+        }
     }
 
     public boolean isRunning() { return running; }

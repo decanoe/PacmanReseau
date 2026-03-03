@@ -8,6 +8,9 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import model.game.agent.AgentAction;
 import model.game.agent.PositionAgent;
 import model.game.agent.AgentAction.Direction;
@@ -148,6 +151,39 @@ public class Maze implements Serializable, Cloneable {
 			e.printStackTrace();
 			throw new Exception("Error at file loading: " + e.getMessage());
 		}
+	}
+	/**
+     * Creates a Maze from a json
+     * @param json the json
+     */
+    public Maze(JSONObject json) {
+		// Initialisation du labyrinthe
+		size_x = json.getInt("size_x");
+		size_y = json.getInt("size_y");
+		warp_x = json.getBoolean("warp_x");
+		warp_y = json.getBoolean("warp_y");
+		walls = new boolean[size_x][size_y];
+		food = new boolean[size_x][size_y];
+		capsules = new boolean[size_x][size_y];
+
+		pacman_start = new ArrayList<PositionAgent>();
+		ghosts_start = new ArrayList<PositionAgent>();
+		ghosts_colors = new ArrayList<Color>();
+		
+		JSONArray statics = json.getJSONArray("statics");
+		for (int y = 0; y < size_y; y++) {
+			for (int x = 0; x < size_x; x++) {
+				String cell = statics.getJSONArray(y).getString(x);
+
+				walls[x][y] = (cell.equals("%"));
+				food[x][y] = (cell.equals("."));
+				capsules[x][y] = (cell.equals("o"));
+			}
+		}
+		
+		// JSONArray agents = json.getJSONArray("agents");
+
+		setGhosts_start(ghosts_start);
 	}
 
 	/**
@@ -464,6 +500,37 @@ public class Maze implements Serializable, Cloneable {
 		return ghosts_colors;
 	}
 
+	public JSONObject toJSON() {
+		JSONArray statics = new JSONArray();
+		for (int y = 0; y < size_y; y++) {
+			JSONArray row = new JSONArray();
+			for (int x = 0; x < size_x; x++) {
+				if (walls[x][y])
+					row.put("%");
+				else if (food[x][y])
+					row.put(".");
+				else if (capsules[x][y])
+					row.put("o");
+				else
+					row.put(" ");
+			}
+			statics.put(row);
+		}
+		
+		JSONArray agents = new JSONArray();
+
+
+		JSONObject json = new JSONObject();
+		json.put("statics", statics);
+		json.put("agents", agents);
+
+		json.put("size_x", size_x);
+		json.put("size_y", size_y);
+		json.put("warp_x", warp_x);
+		json.put("warp_y", warp_y);
+
+		return json;
+	}
 	public String toString() {
 		String s = "Maze\n";
 		s += plateauToString();
@@ -477,7 +544,6 @@ public class Maze implements Serializable, Cloneable {
 		}
 		return s;
 	}
-
 	public String plateauToString() {
 		String s = "";
 		for (int i = 0; i < size_x; i++) {
@@ -496,10 +562,8 @@ public class Maze implements Serializable, Cloneable {
 		return s;
 	}
 
-
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return (Maze) super.clone();
 	}
-	
 }

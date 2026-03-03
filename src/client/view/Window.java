@@ -37,7 +37,10 @@ public class Window {
 
     public void changeState(WindowState state) {
         frame.setJMenuBar(null);
-        panel.removeAll();
+        frame.remove(panel);
+        
+        panel = new JPanel();
+        frame.add(panel);
         this.state = state;
         this.state.createInterface(panel, frame);
         repaint();

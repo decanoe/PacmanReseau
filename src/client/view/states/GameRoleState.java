@@ -15,7 +15,7 @@ import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
 
 public class GameRoleState extends GameRoomState {
-    ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
+    protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
 
     public GameRoleState(Window window, ClientSoketThread soket, String room_name) {
         super(window, soket, room_name);
@@ -60,7 +60,7 @@ public class GameRoleState extends GameRoomState {
                 window.changeState(new GameWaitState(window, socket, room_name));
             }
             else {
-                System.out.println("Game launched !");
+                window.changeState(new GamePlayState(window, socket, room_name, query.getMaze()));
             }
         }
         return true;
