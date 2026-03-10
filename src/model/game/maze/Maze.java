@@ -178,7 +178,16 @@ public class Maze implements Serializable, Cloneable {
 			}
 		}
 		
-		// JSONArray agents = json.getJSONArray("agents");
+		JSONObject agents = json.getJSONObject("agents");
+		JSONArray pacmans_json = agents.getJSONArray("pacmans");
+		JSONArray ghosts_json = agents.getJSONArray("ghosts");
+
+		for (int i = 0; i < pacmans_json.length(); i++) {
+			pacmans.add(Agent.fromJSON(pacmans_json.getJSONObject(i)));
+		}
+		for (int i = 0; i < ghosts_json.length(); i++) {
+			ghosts.add(Agent.fromJSON(ghosts_json.getJSONObject(i)));
+		}
 	}
 
 	/**
@@ -499,7 +508,18 @@ public class Maze implements Serializable, Cloneable {
 			statics.put(row);
 		}
 		
-		JSONArray agents = new JSONArray();
+		JSONObject agents = new JSONObject();
+		JSONArray pacmans_json = new JSONArray();
+		JSONArray ghosts_json = new JSONArray();
+		agents.put("pacmans", pacmans_json);
+		agents.put("ghosts", ghosts_json);
+
+		for (Agent pacman : pacmans) {
+			pacmans_json.put(pacman.toJSON());
+		}
+		for (Agent ghost : ghosts) {
+			ghosts_json.put(ghost.toJSON());
+		}
 
 
 		JSONObject json = new JSONObject();

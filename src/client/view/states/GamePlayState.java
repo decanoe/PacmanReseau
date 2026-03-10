@@ -62,6 +62,7 @@ public class GamePlayState extends GameRoomState {
         else {
             maze = query.getMaze();
             pacman_panel.setMaze(maze);
+            pacman_panel.repaint();
         }
         return true;
     }
