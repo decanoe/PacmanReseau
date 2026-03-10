@@ -1,5 +1,7 @@
 package model.game.agent;
 
+import java.awt.Color;
+
 import model.game.maze.Maze;
 
 /**
@@ -12,6 +14,7 @@ public class PacmanAgent extends Agent {
      */
     public PacmanAgent(PositionAgent position) {
         super(position);
+        this.color = Color.yellow;
     }
 
     @Override

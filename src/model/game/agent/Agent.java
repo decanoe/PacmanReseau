@@ -1,7 +1,12 @@
 package model.game.agent;
 
+import java.awt.Color;
+
+import org.json.JSONObject;
+
 import model.game.agent.behavior.Behavior;
 import model.game.maze.Maze;
+import model.game.maze.Maze.EntityType;
 
 /**
  * a class for representing an agent
@@ -9,6 +14,8 @@ import model.game.maze.Maze;
 public abstract class Agent {
     /** the current position of the agent */
     protected PositionAgent position;
+    /** the color of the agent */
+    protected Color color;
     /** the current last position of the agent <p> used to detect agents crossing each other */
     private PositionAgent last_position;
     /** the behavior of the agent */
@@ -42,6 +49,17 @@ public abstract class Agent {
      * @return the last position of the agent
      */
     public PositionAgent get_last_position() { return last_position; }
+
+    /**
+     * a setter to the color of the agent
+     * @param the color of the agent
+     */
+    public void set_color(Color color) { this.color = color; }
+    /**
+     * a getter to the color of the agent
+     * @return the color of the agent
+     */
+    public Color get_color() { return color; }
 
     /**
      * sets the agent behavior ands returns itself
@@ -96,4 +114,34 @@ public abstract class Agent {
      * kills the agent and sets its position outide of the maze
      */
     public void kill() { dead = true; position.setX(-1); position.setY(-1); }
+
+
+    private static final class TOKEN {
+        public static final String TYPE = "type";
+        public static final String POSITION = "position";
+        public static final String COLOR = "color";
+    }
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put(TOKEN.POSITION, position.toJSON());
+        json.put(TOKEN.COLOR, color.getRGB());
+        json.put(TOKEN.TYPE, get_type().toString());
+        return json;
+    }
+    public static Agent fromJSON(JSONObject json) {
+        EntityType type = EntityType.valueOf(json.getString(TOKEN.TYPE));
+
+        if (type == EntityType.Ghost) {
+            Agent agent = new GhostAgent(PositionAgent.fromJSON(json.getJSONObject(TOKEN.POSITION)));
+            agent.set_color(new Color(json.getInt(TOKEN.COLOR)));
+            return agent;
+        }
+        else if (type == EntityType.Pacman) {
+            Agent agent = new PacmanAgent(PositionAgent.fromJSON(json.getJSONObject(TOKEN.POSITION)));
+            agent.set_color(new Color(json.getInt(TOKEN.COLOR)));
+            return agent;
+        }
+
+        return null;
+    }
 }

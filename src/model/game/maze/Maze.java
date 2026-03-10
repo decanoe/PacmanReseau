@@ -1,6 +1,5 @@
 package model.game.maze;
 
-import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -11,7 +10,10 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import model.game.agent.Agent;
 import model.game.agent.AgentAction;
+import model.game.agent.GhostAgent;
+import model.game.agent.PacmanAgent;
 import model.game.agent.PositionAgent;
 import model.game.agent.AgentAction.Direction;
 
@@ -36,12 +38,10 @@ public class Maze implements Serializable, Cloneable {
 	/** a 2d array of boolean indicating wether a cell is a capsule*/
 	private boolean capsules[][];
 
-	/** an array of PositionAgent for the position of the pacmans at loading*/
-	private ArrayList<PositionAgent> pacman_start;
-	/** an array of PositionAgent for the position of the ghosts at loading*/
-	private ArrayList<PositionAgent> ghosts_start;
-	/** an array of Color for the colors of the ghosts at loading*/
-	private ArrayList<Color> ghosts_colors;
+	/** an array of Agent for the position of the pacmans at loading*/
+	private ArrayList<Agent> pacmans;
+	/** an array of Agent for the position of the ghosts at loading*/
+	private ArrayList<Agent> ghosts;
 
 	/** does the maze warp on the x axis*/
 	protected boolean warp_x;
@@ -83,9 +83,8 @@ public class Maze implements Serializable, Cloneable {
 			food = new boolean[size_x][size_y];
 			capsules = new boolean[size_x][size_y];
 
-			pacman_start = new ArrayList<PositionAgent>();
-			ghosts_start = new ArrayList<PositionAgent>();
-			ghosts_colors = new ArrayList<Color>();
+			pacmans = new ArrayList<Agent>();
+			ghosts = new ArrayList<Agent>();
 
 			// Lecture du fichier pour mettre a jour le labyrinthe
 			ips = new FileInputStream(filename);
@@ -112,10 +111,10 @@ public class Maze implements Serializable, Cloneable {
 						capsules[x][y] = false;
 
 					if (ligne.charAt(x) == 'P') {
-						pacman_start.add(new PositionAgent(x, y, Direction.STOP));
+						pacmans.add(new PacmanAgent(new PositionAgent(x, y, Direction.STOP)));
 					}
 					if (ligne.charAt(x) == 'G') {
-						ghosts_start.add(new PositionAgent(x, y, Direction.STOP));
+						ghosts.add(new GhostAgent(new PositionAgent(x, y, Direction.STOP)));
 					}
 
 					
@@ -126,10 +125,9 @@ public class Maze implements Serializable, Cloneable {
 				}
 				y++;
 			}
-			setGhosts_start(ghosts_start);
 			br.close();
 
-			if (pacman_start.size() == 0)
+			if (pacmans.size() == 0)
 				throw new Exception("Wrong input format: must specify a Pacman start");
 
 			// On verifie que le labyrinthe est clos
@@ -166,9 +164,8 @@ public class Maze implements Serializable, Cloneable {
 		food = new boolean[size_x][size_y];
 		capsules = new boolean[size_x][size_y];
 
-		pacman_start = new ArrayList<PositionAgent>();
-		ghosts_start = new ArrayList<PositionAgent>();
-		ghosts_colors = new ArrayList<Color>();
+		pacmans = new ArrayList<Agent>();
+		ghosts = new ArrayList<Agent>();
 		
 		JSONArray statics = json.getJSONArray("statics");
 		for (int y = 0; y < size_y; y++) {
@@ -182,8 +179,6 @@ public class Maze implements Serializable, Cloneable {
 		}
 		
 		// JSONArray agents = json.getJSONArray("agents");
-
-		setGhosts_start(ghosts_start);
 	}
 
 	/**
@@ -299,8 +294,16 @@ public class Maze implements Serializable, Cloneable {
 			case Wall: return isWall(x, y);
 			case Food: return isFood(x, y);
 			case Capsule: return isCapsule(x, y);
-			case Ghost: return getGhosts_start().contains(new PositionAgent(x, y, null));
-			case Pacman: return getPacman_start().contains(new PositionAgent(x, y, null));
+			case Ghost: {
+				for (Agent agent : ghosts) {
+					if (agent.get_position().equals(new PositionAgent(x, y, null))) return true;
+				}
+			} return false;
+			case Pacman:{
+				for (Agent agent : pacmans) {
+					if (agent.get_position().equals(new PositionAgent(x, y, null))) return true;
+				}
+			} return false;
 			case Empty: return !isWall(x, y);
 			default: return false;
 		}
@@ -352,11 +355,11 @@ public class Maze implements Serializable, Cloneable {
 		PositionAgent result = null;
 		double d = -1;
 
-        for (PositionAgent p : ghost ? getGhosts_start() : getPacman_start() ) {
-            double new_d = new PositionAgent(x, y, null).distance(p, this);
+        for (Agent agent : ghost ? getGhosts() : getPacmans() ) {
+            double new_d = new PositionAgent(x, y, null).distance(agent.get_position(), this);
             if (d == -1 || new_d < d) {
 				d = new_d;
-				result = new PositionAgent(p.getX(), p.getY(), null);
+				result = new PositionAgent(agent.get_position().getX(), agent.get_position().getY(), null);
 			}
         }
 		return result;
@@ -380,22 +383,19 @@ public class Maze implements Serializable, Cloneable {
 	 * Removes from the list of agent positions all positions that are not in the maze
 	 */
 	public void removeOutsideAgents() {
-		var p_iter = pacman_start.listIterator();
+		var p_iter = pacmans.listIterator();
         while (p_iter.hasNext()) {
-            PositionAgent pos = p_iter.next();
+            PositionAgent pos = p_iter.next().get_position();
             if (pos.getX() < 0 || pos.getY() < 0) {
                 p_iter.remove();
             }
         }
 		
-		var g_iter = ghosts_start.listIterator();
-		var c_iter = ghosts_colors.listIterator();
+		var g_iter = ghosts.listIterator();
         while (g_iter.hasNext()) {
-            PositionAgent pos = g_iter.next();
-			c_iter.next();
+            PositionAgent pos = g_iter.next().get_position();
             if (pos.getX() < 0 || pos.getY() < 0) {
                 g_iter.remove();
-				c_iter.remove();
             }
         }
 	}
@@ -444,60 +444,42 @@ public class Maze implements Serializable, Cloneable {
 	 * @return the number of pacman present in the maze
 	 */
 	public int getInitNumberOfPacmans() {
-		return (pacman_start.size());
+		return (pacmans.size());
 	}
 	/**
 	 * a getter to the number of ghosts present in the maze
 	 * @return the number of ghosts present in the maze
 	 */
 	public int getInitNumberOfGhosts() {
-		return (ghosts_start.size());
+		return (ghosts.size());
 	}
 
 	/**
 	 * a getter to the list of pacman positions in the maze
 	 * @return the list of pacman positions in the maze
 	 */
-	public ArrayList<PositionAgent> getPacman_start() {
-		return pacman_start;
+	public ArrayList<Agent> getPacmans() {
+		return pacmans;
 	}
-	/**
-	 * a setter to the list of pacman positions in the maze
-	 * @param pacman_start the new list of positions
-	 */
-	public void setPacman_start(ArrayList<PositionAgent> pacman_start) {
-		this.pacman_start = pacman_start;
-	}
-
 	/**
 	 * a getter to the list of ghost positions in the maze
 	 * @return the list of ghost positions in the maze
 	 */
-	public ArrayList<PositionAgent> getGhosts_start() {
-		return ghosts_start;
+	public ArrayList<Agent> getGhosts() {
+		return ghosts;
 	}
 	/**
-	 * a setter to the list of ghost positions in the maze
-	 * <p>
-	 * this also resets the colors of the ghosts if the number of elements does not match
-	 * @param ghosts_start the new list of positions
+	 * a setter to the list of agents
+	 * @param agents the new list of agents
 	 */
-	public void setGhosts_start(ArrayList<PositionAgent> ghosts_start) {
-		if (this.ghosts_colors.size() != ghosts_start.size()) {
-			ghosts_colors.clear();
-			float v = (float)Math.random();
-			for (int i = 0; i < ghosts_start.size(); i++) {
-				ghosts_colors.add(new Color(Color.HSBtoRGB((float)i / ghosts_start.size() + v, 1, 1)));
-			}
+	public void setAgents(ArrayList<Agent> agents) {
+		pacmans = new ArrayList<Agent>();
+		ghosts = new ArrayList<Agent>();
+
+		for (Agent agent : agents) {
+			if (agent.get_type() == EntityType.Pacman) pacmans.add(agent);
+			else ghosts.add(agent);
 		}
-		this.ghosts_start = ghosts_start;
-	}
-	/**
-	 * a getter to the list of ghost colors in the maze
-	 * @return the list of ghost colors in the maze
-	 */
-	public ArrayList<Color> getGhosts_colors() {
-		return ghosts_colors;
 	}
 
 	public JSONObject toJSON() {
@@ -535,12 +517,12 @@ public class Maze implements Serializable, Cloneable {
 		String s = "Maze\n";
 		s += plateauToString();
 		s += "\nPosition agents fantom :";
-		for (PositionAgent pa : ghosts_start) {
-			s += pa + " ";
+		for (Agent a : ghosts) {
+			s += a.get_position() + " ";
 		}
 		s += "\nPosition agents pacman :";
-		for (PositionAgent pa : pacman_start) {
-			s += pa + " ";
+		for (Agent a : pacmans) {
+			s += a.get_position() + " ";
 		}
 		return s;
 	}

@@ -2,6 +2,8 @@ package model.game.agent;
 
 import java.io.Serializable;
 
+import org.json.JSONObject;
+
 import model.game.agent.AgentAction.Direction;
 import model.game.maze.Maze;
 
@@ -135,5 +137,22 @@ public class PositionAgent implements Serializable {
 
         final PositionAgent other = (PositionAgent) obj;
 		return (x == other.x) && (y == other.y);
+    }
+
+
+    private static final class TOKEN {
+        public static final String X = "x";
+        public static final String Y = "y";
+        public static final String DIRECTION = "dir";
+    }
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put(TOKEN.X, this.getX());
+        json.put(TOKEN.Y, this.getY());
+        json.put(TOKEN.DIRECTION, this.getDir().toString());
+		return json;
+    }
+    public static PositionAgent fromJSON(JSONObject json) {
+		return new PositionAgent(json.getInt(TOKEN.X), json.getInt(TOKEN.Y), Direction.valueOf(json.getString(TOKEN.DIRECTION)));
     }
 }

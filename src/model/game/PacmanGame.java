@@ -63,7 +63,7 @@ public class PacmanGame extends Game {
             maze = new Maze(layout_path);
             agents.clear();
 
-            for (PositionAgent p : maze.getPacman_start()) {
+            for (Agent a : maze.getPacmans()) {
                 Behavior chased_behavior = new DualDistanceBehavior(
                     BehaviorFactory.create_pathfinding(PathfindingPreset.SearchCapsule),
                     BehaviorFactory.create_pathfinding(PathfindingPreset.SearchFood),
@@ -75,15 +75,15 @@ public class PacmanGame extends Game {
                 
                 Behavior b = new DualScaredBehavior(chased_behavior, chase_behavior);
                 
-                agents.add(new PacmanAgent(p).set_behavior(b));
+                agents.add(a.set_behavior(b));
             }
-            for (PositionAgent p : maze.getGhosts_start()) {
+            for (Agent a : maze.getGhosts()) {
                 Behavior b = new DualScaredBehavior(
                     BehaviorFactory.create_pathfinding(PathfindingPreset.SearchPacmans),
                     BehaviorFactory.create_pathfinding(PathfindingPreset.FleePacman)
                     );
 
-                agents.add(new GhostAgent(p).set_behavior(b));
+                agents.add(a.set_behavior(b));
             }
         } catch (Exception e) {
             e.printStackTrace();

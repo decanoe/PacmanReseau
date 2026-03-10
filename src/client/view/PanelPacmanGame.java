@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import javax.swing.JPanel;
 
+import model.game.agent.Agent;
 import model.game.agent.AgentAction.Direction;
 import model.game.agent.PositionAgent;
 import model.game.maze.Maze;
@@ -21,10 +22,6 @@ public class PanelPacmanGame extends JPanel {
 	private double sizeGhostWidth = .8;
 	private double sizeGhostEyeWidth = .1;
 	private double sizeGhostEyeHeight = .3;
-	private Color pacmansColor = Color.yellow;
-
-	private Color outlineColor = Color.green;
-	private double sizeOutline = 1;
 
 	private Color ghostScarredColor = Color.white;
 
@@ -37,19 +34,15 @@ public class PanelPacmanGame extends JPanel {
 	private Maze m;
 	private int turn = 0;
 
-	private ArrayList<PositionAgent> pacmans_pos;
-	private ArrayList<PositionAgent> ghosts_pos;
-	private ArrayList<Color> ghosts_colors;
-
-	private PositionAgent target_agent = null;
+	private ArrayList<Agent> pacmans;
+	private ArrayList<Agent> ghosts;
 
 	private boolean ghostsScarred;
 	
 	public PanelPacmanGame(Maze maze) {
 		this.m = maze;
-		pacmans_pos = this.m.getPacman_start();
-		ghosts_pos = this.m.getGhosts_start();
-		ghosts_colors = this.m.getGhosts_colors();
+		pacmans = this.m.getPacmans();
+		ghosts = this.m.getGhosts();
 		ghostsScarred = false;
 	}
 
@@ -74,23 +67,16 @@ public class PanelPacmanGame extends JPanel {
 		}
 	}
 	void paint_image_agents(Graphics g) {
-		if (target_agent != null) {
-			drawOutline(g, target_agent.getX(), target_agent.getY(), outlineColor, sizeOutline);
+		for (Agent a : pacmans) {
+			drawPacmans(g, a, sizeAgents);
 		}
-
-		for (int i = 0; i < pacmans_pos.size(); i++) {
-			PositionAgent pos = pacmans_pos.get(i);
-			drawPacmans(g, pos.getX(), pos.getY(), pos.getDir(), pacmansColor, sizeAgents);
-		}
-
-		for (int i = 0; i < ghosts_pos.size(); i++) {
-			PositionAgent pos = ghosts_pos.get(i);
-			drawGhosts(g, pos.getX(), pos.getY(), pos.getDir(), ghostsScarred ? ghostScarredColor : ghosts_colors.get(i), sizeAgents);
+		for (Agent a : ghosts) {
+			drawGhosts(g, a, sizeAgents);
 		}
 	}
 	void clear_image_agents(Graphics g) {
-		for (int i = 0; i < pacmans_pos.size(); i++) {
-			PositionAgent pos = pacmans_pos.get(i);
+		for (Agent agent : pacmans) {
+			PositionAgent pos = agent.get_position();
 			int x = pos.getX();
 			int y = pos.getY();
 			g.setColor(Color.black);
@@ -101,8 +87,8 @@ public class PanelPacmanGame extends JPanel {
 				drawCell(g, x+a, y+b);
 		}
 
-		for (int i = 0; i < ghosts_pos.size(); i++) {
-			PositionAgent pos = ghosts_pos.get(i);
+		for (Agent agent : ghosts) {
+			PositionAgent pos = agent.get_position();
 			int x = pos.getX();
 			int y = pos.getY();
 			g.setColor(Color.black);
@@ -120,21 +106,11 @@ public class PanelPacmanGame extends JPanel {
 		// clear_image_agents(g);
 	}
 
-	void drawOutline(Graphics g, int px, int py, Color color, double size) {
-		if((px != -1) || (py != -1)){
-			double posx = px * draw_cell_width;
-			double posy = py * draw_cell_height;
-	
-			g.setColor(color);
-			double nsx = draw_cell_width * size;
-			double nsy = draw_cell_height * size;
-			double npx = (draw_cell_width - nsx) / 2.0;
-			double npy = (draw_cell_height - nsy) / 2.0;
-		
-			g.drawRoundRect((int)(npx + posx), (int)(npy + posy), (int)nsx, (int)nsy, 5, 5);
-		}
-	}
-	void drawPacmans(Graphics g, int px, int py, Direction pacmanDirection, Color color, double size) {
+	void drawPacmans(Graphics g, Agent agent, double size) {
+		int px = agent.get_position().getX();
+		int py = agent.get_position().getY();
+		Color color = ghostsScarred ? ghostScarredColor : agent.get_color();
+
 		if((px != -1) || (py != -1)){
 			double posx = px * draw_cell_width;
 			double posy = py * draw_cell_height;
@@ -152,16 +128,16 @@ public class PanelPacmanGame extends JPanel {
 			
 			double start;
 			double length = (angle - 360);
-			if (pacmanDirection == Direction.NORTH) {
+			if (agent.get_position().getDir() == Direction.NORTH) {
 				start = 90 - angle * .5;
 			}
-			else if (pacmanDirection == Direction.SOUTH) {
+			else if (agent.get_position().getDir() == Direction.SOUTH) {
 				start = 270 - angle * .5;
 			}
-			else if (pacmanDirection == Direction.EAST) {
+			else if (agent.get_position().getDir() == Direction.EAST) {
 				start = 360 - angle * .5;
 			}
-			else if (pacmanDirection == Direction.WEST) {
+			else if (agent.get_position().getDir() == Direction.WEST) {
 				start = 180 - angle * .5;
 			}
 			else {
@@ -175,7 +151,11 @@ public class PanelPacmanGame extends JPanel {
 		}
 
 	}
-	void drawGhosts(Graphics g, int px, int py, Direction direction, Color color, double size) {
+	void drawGhosts(Graphics g, Agent agent, double size) {
+		int px = agent.get_position().getX();
+		int py = agent.get_position().getY();
+		Color color = ghostsScarred ? ghostScarredColor : agent.get_color();
+
 		if((px != -1) || (py != -1)){
 			double posx = (px + .5 - size * sizeGhostWidth / 2) * draw_cell_width;
 			double posy = (py + .5 - size / 2) * draw_cell_height;
@@ -191,11 +171,11 @@ public class PanelPacmanGame extends JPanel {
 			
 			g.setColor(Color.BLACK);
 			double centerx = (px + .5) * draw_cell_width;
-			if (direction == Direction.WEST) centerx -= .1 * draw_cell_width;
-			if (direction == Direction.EAST) centerx += .1 * draw_cell_width;
+			if (agent.get_position().getDir() == Direction.WEST) centerx -= .1 * draw_cell_width;
+			if (agent.get_position().getDir() == Direction.EAST) centerx += .1 * draw_cell_width;
 			double centery = (py + .5) * draw_cell_height;
-			if (direction == Direction.SOUTH) centery += .1 * draw_cell_height;
-			if (direction == Direction.NORTH) centery -= .1 * draw_cell_height;
+			if (agent.get_position().getDir() == Direction.SOUTH) centery += .1 * draw_cell_height;
+			if (agent.get_position().getDir() == Direction.NORTH) centery -= .1 * draw_cell_height;
 
 			double offset = .2 * size * sizeGhostWidth * draw_cell_width;
 			double w = sizeGhostEyeWidth * draw_cell_width;
@@ -245,6 +225,8 @@ public class PanelPacmanGame extends JPanel {
 	
 	public void setMaze(Maze maze){
 		this.m = maze;
+		setPacmans(maze.getPacmans());
+		setGhosts(maze.getGhosts());
 	}
 	public void setTurn(int turn){
 		this.turn = turn;
@@ -254,27 +236,10 @@ public class PanelPacmanGame extends JPanel {
 		this.ghostsScarred = ghostsScarred;
 	}
 
-	public ArrayList<PositionAgent> getPacmans_pos() {
-		return pacmans_pos;
+	public void setPacmans(ArrayList<Agent> pacmans) {
+		this.pacmans = pacmans;				
 	}
-
-	public void setPacmans_pos(ArrayList<PositionAgent> pacmans_pos) {
-		this.pacmans_pos = pacmans_pos;				
-	}
-
-	public ArrayList<PositionAgent> getGhosts_pos() {
-		return ghosts_pos;
-	}
-
-	public void setGhosts_colors(ArrayList<Color> ghosts_colors) {
-		this.ghosts_colors = ghosts_colors;
-	}
-
-	public void setGhosts_pos(ArrayList<PositionAgent> ghosts_pos) {
-		this.ghosts_pos = ghosts_pos;
-	}
-
-	public void setTarget(PositionAgent target) {
-		this.target_agent = target;
+	public void setGhosts(ArrayList<Agent> ghosts) {
+		this.ghosts = ghosts;
 	}
 }

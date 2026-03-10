@@ -1,8 +1,6 @@
 package client.view.states;
 
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
@@ -30,26 +28,29 @@ public class GamePlayState extends GameRoomState {
         super.createInterface(panel, frame);
         panel.setLayout(null);
 
-        Dimension dimension = compute_dimensions(maze.getSizeX(), maze.getSizeY());
-        resize_window(frame, dimension);
+        frame.revalidate();
+        frame.repaint();
+        int menu_height = frame.getHeight() - panel.getHeight();
+        Dimension window_dimension = compute_dimensions(maze.getSizeX(), maze.getSizeY(), menu_height);
+        resize_window(frame, window_dimension);
 
         pacman_panel = new PanelPacmanGame(maze);
         panel.add(pacman_panel);
-        pacman_panel.setBounds(0, 0, dimension.width, dimension.height);
+        pacman_panel.setBounds(0, 0, window_dimension.width, window_dimension.height - menu_height);
     }
-    protected Dimension compute_dimensions(int maze_width, int maze_height) {
+    protected Dimension compute_dimensions(int maze_width, int maze_height, int menu_height) {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        int max_height = ge.getMaximumWindowBounds().height;
+        int max_height = ge.getMaximumWindowBounds().height - menu_height;
         int max_width = ge.getMaximumWindowBounds().width;
         
-        if (max_height * maze_width / maze_height > max_width) return new Dimension(max_width, max_width * maze_height / maze_width);
-        else return new Dimension(max_height * maze_width / maze_height, max_height);
+        if (max_height * maze_width / maze_height > max_width) return new Dimension(max_width, max_width * maze_height / maze_width + menu_height);
+        else return new Dimension(max_height * maze_width / maze_height, max_height + menu_height);
     }
     protected void resize_window(JFrame frame, Dimension dimension) {
         frame.setSize(dimension);
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         int dx = ge.getCenterPoint().x - dimension.width / 2;
-        int dy = ge.getCenterPoint().y - dimension.height / 2;
+        int dy = 0;
         frame.setLocation(dx, dy);
     }
 
@@ -57,6 +58,10 @@ public class GamePlayState extends GameRoomState {
     protected boolean onReceiveGameState(GameStateQuery query, ClientSoketThread socket) {
         if (!query.isGameRunning()) {
             window.changeState(new GameWaitState(window, socket, room_name));
+        }
+        else {
+            maze = query.getMaze();
+            pacman_panel.setMaze(maze);
         }
         return true;
     }
