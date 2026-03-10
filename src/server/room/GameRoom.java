@@ -1,5 +1,6 @@
 package server.room;
 
+import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
 import model.protocol.Queries.GoToRoomQuery;
@@ -45,5 +46,9 @@ public class GameRoom extends Room {
     @Override
     protected boolean onReceiveChoseRole(ChoseRoleQuery query, RoomSocketThread socket) {
         return state.onReceiveChoseRole(query, socket);
+    }
+    @Override
+    protected boolean onReceiveAgentMovement(AgentMovementQuery query, RoomSocketThread socket) {
+        return state.onReceiveAgentMovement(query, socket);
     }
 }

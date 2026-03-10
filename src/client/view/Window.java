@@ -1,6 +1,8 @@
 package client.view;
 
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -11,7 +13,8 @@ import client.view.states.ConnectionState;
 import client.view.states.WindowState;
 
 public class Window {
-    public static String WINDOW_TITLE = "Pacman";
+    public static final Dimension WINDOW_DEFAULT_DIMENSION = new Dimension(700, 700);
+    public static final String WINDOW_TITLE = "Pacman";
 
     WindowState state;
     JFrame frame;
@@ -26,8 +29,9 @@ public class Window {
             }
         });
         frame.setTitle(WINDOW_TITLE);
-        frame.setSize(new Dimension(700, 700));
+        resize_window(WINDOW_DEFAULT_DIMENSION);
         frame.setVisible(true);
+        frame.setFocusable(true);
 
         panel = new JPanel();
         frame.add(panel);
@@ -38,16 +42,35 @@ public class Window {
     public void changeState(WindowState state) {
         frame.setJMenuBar(null);
         frame.remove(panel);
+        tryRemoveKeyListener(this.state);
         
         panel = new JPanel();
         frame.add(panel);
         this.state = state;
+        resize_window(WINDOW_DEFAULT_DIMENSION);
         this.state.createInterface(panel, frame);
         repaint();
+
+        tryAddKeyListener(state);
     }
     public void repaint() {
         frame.revalidate();
         frame.repaint();
+    }
+
+    public void resize_window(Dimension dimension) {
+        frame.setSize(dimension);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        int dx = ge.getCenterPoint().x - dimension.width / 2;
+        int dy = 0;
+        frame.setLocation(dx, dy);
+    }
+
+    protected void tryRemoveKeyListener(WindowState s) {
+        if (s instanceof KeyListener) frame.removeKeyListener((KeyListener)s);
+    }
+    protected void tryAddKeyListener(WindowState s) {
+        if (s instanceof KeyListener) frame.addKeyListener((KeyListener)s);
     }
 
     public void close() {

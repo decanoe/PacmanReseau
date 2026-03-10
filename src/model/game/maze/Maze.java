@@ -31,6 +31,9 @@ public class Maze implements Serializable, Cloneable {
 	/** The height of the maze (in cells) */
 	private int size_y;
 
+	/** The current turn */
+	private int turn = 0;
+
 	/** a 2d array of boolean indicating wether a cell is a wall*/
 	private boolean walls[][];
 	/** a 2d array of boolean indicating wether a cell is a food*/
@@ -47,6 +50,8 @@ public class Maze implements Serializable, Cloneable {
 	protected boolean warp_x;
 	/** does the maze warp on the y axis*/
 	protected boolean warp_y;
+
+	protected boolean ghosts_scarred;
 
 	/**
      * Creates a Maze from a path to a layout file
@@ -160,6 +165,8 @@ public class Maze implements Serializable, Cloneable {
 		size_y = json.getInt("size_y");
 		warp_x = json.getBoolean("warp_x");
 		warp_y = json.getBoolean("warp_y");
+		turn = json.getInt("turn");
+		ghosts_scarred = json.getBoolean("ghosts_scarred");
 		walls = new boolean[size_x][size_y];
 		food = new boolean[size_x][size_y];
 		capsules = new boolean[size_x][size_y];
@@ -218,6 +225,36 @@ public class Maze implements Serializable, Cloneable {
 	 */
 	public boolean getWarpY() {
 		return warp_y;
+	}
+	
+	/**
+	 * Returns the current turn
+	 * @return the current turn
+	 */
+	public int getTurn() {
+		return (turn);
+	}
+	/**
+	 * Sets the current turn
+	 * @param turn the new turn value
+	 */
+	public void setTurn(int turn) {
+		this.turn = turn;
+	}
+
+	/**
+	 * Returns the ghosts scarred state
+	 * @return the ghosts scarred state
+	 */
+	public boolean getGhostsScarred() {
+		return (ghosts_scarred);
+	}
+	/**
+	 * Sets the ghosts scarred state
+	 * @param turn the new ghosts scarred state
+	 */
+	public void setGhostsScarred(boolean ghosts_scarred) {
+		this.ghosts_scarred = ghosts_scarred;
 	}
 
 	/**
@@ -530,6 +567,9 @@ public class Maze implements Serializable, Cloneable {
 		json.put("size_y", size_y);
 		json.put("warp_x", warp_x);
 		json.put("warp_y", warp_y);
+
+		json.put("turn", turn);
+		json.put("ghosts_scarred", ghosts_scarred);
 
 		return json;
 	}

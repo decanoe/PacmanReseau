@@ -55,6 +55,27 @@ public class PacmanGame extends Game {
         agents = new ArrayList<>();
     }
 
+    public Behavior getDefaultBehavior(Agent a) {
+        if (a.get_type() == EntityType.Ghost) {
+            return new DualScaredBehavior(
+                BehaviorFactory.create_pathfinding(PathfindingPreset.SearchPacmans),
+                BehaviorFactory.create_pathfinding(PathfindingPreset.FleePacman)
+            );
+        }
+        if (a.get_type() == EntityType.Pacman) {
+            Behavior chased_behavior = new DualDistanceBehavior(
+                BehaviorFactory.create_pathfinding(PathfindingPreset.SearchCapsule),
+                BehaviorFactory.create_pathfinding(PathfindingPreset.SearchFood),
+                EntityType.Ghost, 5);
+            Behavior chase_behavior = new DualDistanceBehavior(
+                BehaviorFactory.create_pathfinding(PathfindingPreset.SearchGhosts),
+                BehaviorFactory.create_pathfinding(PathfindingPreset.SearchFood),
+                EntityType.Ghost, 10);
+            
+            return new DualScaredBehavior(chased_behavior, chase_behavior);
+        }
+        return new StopBehavior();
+    }
     @Override
     protected void initialize_game() {
         Maze old_maze = maze;
@@ -64,26 +85,10 @@ public class PacmanGame extends Game {
             agents.clear();
 
             for (Agent a : maze.getPacmans()) {
-                Behavior chased_behavior = new DualDistanceBehavior(
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.SearchCapsule),
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.SearchFood),
-                    EntityType.Ghost, 5);
-                Behavior chase_behavior = new DualDistanceBehavior(
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.SearchGhosts),
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.SearchFood),
-                    EntityType.Ghost, 10);
-                
-                Behavior b = new DualScaredBehavior(chased_behavior, chase_behavior);
-                
-                agents.add(a.set_behavior(b));
+                agents.add(a.set_behavior(getDefaultBehavior(a)));
             }
             for (Agent a : maze.getGhosts()) {
-                Behavior b = new DualScaredBehavior(
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.SearchPacmans),
-                    BehaviorFactory.create_pathfinding(PathfindingPreset.FleePacman)
-                    );
-
-                agents.add(a.set_behavior(b));
+                agents.add(a.set_behavior(getDefaultBehavior(a)));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -200,7 +205,7 @@ public class PacmanGame extends Game {
      * Wether the ghosts are scared
      * @return True if the ghosts are scared, False else
      */
-    protected boolean are_ghost_scared() {
+    public boolean are_ghost_scared() {
         return ghost_scared_counter >= 0;
     }
 

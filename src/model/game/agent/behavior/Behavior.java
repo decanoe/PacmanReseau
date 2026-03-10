@@ -22,6 +22,11 @@ public abstract class Behavior {
     */
     public void set_agent(Agent agent) { this.agent = agent; }
     /**
+     * Gets the agent of the behavior
+     * @return the agent
+    */
+    public Agent get_agent() { return this.agent; }
+    /**
      * Sets the parent behavior of this behavior
      * @param parent the parent
      * @param index the index of this behavior in the parent chilren

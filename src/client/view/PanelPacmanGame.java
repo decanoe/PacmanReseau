@@ -32,18 +32,14 @@ public class PanelPacmanGame extends JPanel {
 	private Color colorCapsule = Color.red;
 
 	private Maze m;
-	private int turn = 0;
 
 	private ArrayList<Agent> pacmans;
 	private ArrayList<Agent> ghosts;
 
-	private boolean ghostsScarred;
-	
 	public PanelPacmanGame(Maze maze) {
 		this.m = maze;
 		pacmans = this.m.getPacmans();
 		ghosts = this.m.getGhosts();
-		ghostsScarred = false;
 	}
 
 	private double draw_cell_width;
@@ -109,7 +105,7 @@ public class PanelPacmanGame extends JPanel {
 	void drawPacmans(Graphics g, Agent agent, double size) {
 		int px = agent.get_position().getX();
 		int py = agent.get_position().getY();
-		Color color = ghostsScarred ? ghostScarredColor : agent.get_color();
+		Color color = agent.get_color();
 
 		if((px != -1) || (py != -1)){
 			double posx = px * draw_cell_width;
@@ -122,8 +118,8 @@ public class PanelPacmanGame extends JPanel {
 			double npy = (draw_cell_height - nsy) / 2.0;
 			
 			double angle = 0;
-			if (turn % 4 == 0) angle = 0;
-			else if (turn % 4 == 2) angle = pacmanMaxAngle;
+			if (m.getTurn() % 4 == 0) angle = 0;
+			else if (m.getTurn() % 4 == 2) angle = pacmanMaxAngle;
 			else angle = pacmanMaxAngle * .5;
 			
 			double start;
@@ -154,7 +150,7 @@ public class PanelPacmanGame extends JPanel {
 	void drawGhosts(Graphics g, Agent agent, double size) {
 		int px = agent.get_position().getX();
 		int py = agent.get_position().getY();
-		Color color = ghostsScarred ? ghostScarredColor : agent.get_color();
+		Color color = m.getGhostsScarred() ? ghostScarredColor : agent.get_color();
 
 		if((px != -1) || (py != -1)){
 			double posx = (px + .5 - size * sizeGhostWidth / 2) * draw_cell_width;
@@ -228,14 +224,7 @@ public class PanelPacmanGame extends JPanel {
 		setPacmans(maze.getPacmans());
 		setGhosts(maze.getGhosts());
 	}
-	public void setTurn(int turn){
-		this.turn = turn;
-	}
 	
-	public void setGhostsScarred(boolean ghostsScarred) {
-		this.ghostsScarred = ghostsScarred;
-	}
-
 	public void setPacmans(ArrayList<Agent> pacmans) {
 		this.pacmans = pacmans;				
 	}
