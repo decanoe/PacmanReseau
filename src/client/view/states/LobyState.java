@@ -14,7 +14,7 @@ import javax.swing.JScrollPane;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.Queries.GoToRoomQuery;
 import model.protocol.Queries.RoomListQuery;
@@ -22,7 +22,7 @@ import model.protocol.Queries.RoomListQuery;
 public class LobyState extends WindowState {
     JPanel room_list;
 
-    public LobyState(Window window, ClientSoketThread socket) {
+    public LobyState(Window window, ClientSocketThread socket) {
         super(window, socket);
     }
 
@@ -48,14 +48,14 @@ public class LobyState extends WindowState {
     }
 
     @Override
-    protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSocketThread socket) {
         if (query.getSuccess()) {
             window.changeState(new GameWaitState(window, socket, query.getRoomName()));
         }
         return true;
     }
     @Override
-    protected boolean onReceiveRoomList(RoomListQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveRoomList(RoomListQuery query, ClientSocketThread socket) {
         refreshRoomList(query.getRoomsInfos());
         return true;
     }

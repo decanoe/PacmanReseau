@@ -6,10 +6,10 @@ import org.json.JSONObject;
 import client.view.states.WindowState;
 import model.socket.SocketThread;
 
-public class ClientSoketThread extends SocketThread {
+public class ClientSocketThread extends SocketThread {
     WindowState window_state;
 
-    public ClientSoketThread(Socket socket, String name) {
+    public ClientSocketThread(Socket socket, String name) {
         super(socket, name);
     }
     public void setWindowState(WindowState window_state) {

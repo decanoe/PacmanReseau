@@ -8,7 +8,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.PanelPacmanGame;
 import client.view.Window;
 import model.game.agent.AgentAction.Direction;
@@ -21,7 +21,7 @@ public class GamePlayState extends GameRoomState implements KeyListener {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
     protected Maze maze;
 
-    public GamePlayState(Window window, ClientSoketThread soket, String room_name, Maze maze) {
+    public GamePlayState(Window window, ClientSocketThread soket, String room_name, Maze maze) {
         super(window, soket, room_name);
         this.maze = maze;
     }
@@ -70,7 +70,7 @@ public class GamePlayState extends GameRoomState implements KeyListener {
     public void keyTyped(KeyEvent e) {}
 
     @Override
-    protected boolean onReceiveGameState(GameStateQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (!query.isGameRunning()) {
             window.changeState(new GameWaitState(window, socket, room_name));
         }

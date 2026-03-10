@@ -5,10 +5,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import server.room.LobyRoom;
+import server.room.LoginRoom;
 import server.socket.RoomSocketThread;
 
 public class MainServer {
     public static LobyRoom loby = new LobyRoom("Loby");
+    public static LoginRoom login = new LoginRoom(loby);
 
 	public static void main(String[] args) {
 		int p = 2000; // le port d’écoute
@@ -21,7 +23,7 @@ public class MainServer {
 		        Socket so = ecoute.accept();
                 System.out.println("Nouvelle connection entrante");
 
-                new RoomSocketThread(so, loby).start();
+                new RoomSocketThread(so, login).start();
             }
         } catch (IOException e) { System.out.println("problème dans le main thread\n\t"+e); }
 	}

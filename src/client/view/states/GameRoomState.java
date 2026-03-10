@@ -9,7 +9,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.Queries.GameStateQuery;
 import model.protocol.Queries.GoToRoomQuery;
@@ -17,7 +17,7 @@ import model.protocol.Queries.GoToRoomQuery;
 public abstract class GameRoomState extends WindowState {
     String room_name;
 
-    public GameRoomState(Window window, ClientSoketThread socket, String room_name) {
+    public GameRoomState(Window window, ClientSocketThread socket, String room_name) {
         super(window, socket);
         this.room_name = room_name;
 
@@ -43,7 +43,7 @@ public abstract class GameRoomState extends WindowState {
     }
 
     @Override
-    protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSocketThread socket) {
         if (query.getSuccess() && query.toLoby()) {
             window.changeState(new LobyState(window, socket));
         }

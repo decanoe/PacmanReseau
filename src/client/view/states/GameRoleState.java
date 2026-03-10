@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
@@ -17,7 +17,7 @@ import model.protocol.Queries.GameStateQuery;
 public class GameRoleState extends GameRoomState {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
 
-    public GameRoleState(Window window, ClientSoketThread soket, String room_name) {
+    public GameRoleState(Window window, ClientSocketThread soket, String room_name) {
         super(window, soket, room_name);
     }
 
@@ -54,7 +54,7 @@ public class GameRoleState extends GameRoomState {
     }
 
     @Override
-    protected boolean onReceiveGameState(GameStateQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (query.isGameRunning()) {
             if (choice == ChoseRoleQuery.Choice.None) {
                 window.changeState(new GameWaitState(window, socket, room_name));
@@ -66,7 +66,7 @@ public class GameRoleState extends GameRoomState {
         return true;
     }
     @Override
-    protected boolean onReceiveChoseRole(ChoseRoleQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveChoseRole(ChoseRoleQuery query, ClientSocketThread socket) {
         if (!query.getSuccess()) return true;
 
         choice = query.getChoice();

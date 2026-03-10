@@ -7,23 +7,23 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 
 public class ConnectionState extends WindowState {
-    static String DEFAULT_ADRESS = "127.0.0.1";
-    static int DEFAULT_PORT = 2000;
-    static String[] RANDOM_NAMES = { "Tom", "Paul", "Bob", "Louis", "Charles", "Elise", "Camille", "Valérie" };
+    public static final String DEFAULT_ADRESS = "127.0.0.1";
+    public static final int DEFAULT_PORT = 2000;
 
-    public ConnectionState(Window window) {
+    String debug_string;
+    public ConnectionState(Window window, String debug_string) {
         super(window, null);
+        this.debug_string = debug_string;
     }
 
     @Override
@@ -36,10 +36,6 @@ public class ConnectionState extends WindowState {
         info_panel.setLayout(new GridLayout(3, 2));
         panel.add(info_panel);
 
-        Random rand = new Random();
-        TextField nameField = new TextField(RANDOM_NAMES[rand.nextInt(RANDOM_NAMES.length)]);
-        info_panel.add(new JLabel("Pseudo : "));
-        info_panel.add(nameField);
         TextField adressField = new TextField(DEFAULT_ADRESS);
         info_panel.add(new JLabel("Adresse serveur : "));
         info_panel.add(adressField);
@@ -47,7 +43,7 @@ public class ConnectionState extends WindowState {
         info_panel.add(new JLabel("Port serveur : "));
         info_panel.add(portField);
 
-        JLabel debug_label = new JLabel("");
+        JLabel debug_label = new JLabel(debug_string);
         panel.add(debug_label);
 
         JButton button = new JButton("Valider");
@@ -57,7 +53,7 @@ public class ConnectionState extends WindowState {
             @Override
             public void actionPerformed(ActionEvent event) {
                 try {
-                    socket = new ClientSoketThread(new Socket(adressField.getText(), Integer.parseInt(portField.getText())), nameField.getText());
+                    socket = new ClientSocketThread(new Socket(adressField.getText(), Integer.parseInt(portField.getText())), "not_logged_yet");
                     socket.start();
                     
                     window.changeState(new LobyState(window, socket));

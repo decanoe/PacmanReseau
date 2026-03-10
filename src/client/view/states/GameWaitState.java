@@ -4,13 +4,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.Queries.GameStateQuery;
 
 public class GameWaitState extends GameRoomState {
 
-    public GameWaitState(Window window, ClientSoketThread soket, String room_name) {
+    public GameWaitState(Window window, ClientSocketThread soket, String room_name) {
         super(window, soket, room_name);
     }
 
@@ -22,7 +22,7 @@ public class GameWaitState extends GameRoomState {
     }
 
     @Override
-    protected boolean onReceiveGameState(GameStateQuery query, ClientSoketThread socket) {
+    protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (!query.isGameRunning()) window.changeState(new GameRoleState(window, socket, room_name));
         return true;
     }

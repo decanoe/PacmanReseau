@@ -2,6 +2,10 @@ ConnectionState
 ||
 || connect to serv
 \/
+LoginState
+||
+|| login
+\/
 LobyState ----------------
 ||                      /\
 || select room          || leave room

@@ -39,6 +39,9 @@ public abstract class SocketThread extends Thread {
     public String getPlayerName() {
         return name;
     }
+    public void setPlayerName(String name) {
+        this.name = name;
+    }
 
     public void send(JSONObject json) {
         if (!isValid()) return;

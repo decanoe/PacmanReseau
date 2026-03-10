@@ -3,15 +3,15 @@ package client.view.states;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import client.socket.ClientSoketThread;
+import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.QueryManager;
 
-public abstract class WindowState extends QueryManager<ClientSoketThread> {
+public abstract class WindowState extends QueryManager<ClientSocketThread> {
     Window window;
-    ClientSoketThread socket;
+    ClientSocketThread socket;
 
-    public WindowState(Window window, ClientSoketThread socket) {
+    public WindowState(Window window, ClientSocketThread socket) {
         this.window = window;
         this.socket = socket;
 

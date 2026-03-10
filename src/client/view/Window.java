@@ -5,11 +5,16 @@ import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import client.socket.ClientSocketThread;
 import client.view.states.ConnectionState;
+import client.view.states.LoginState;
 import client.view.states.WindowState;
 
 public class Window {
@@ -35,8 +40,22 @@ public class Window {
 
         panel = new JPanel();
         frame.add(panel);
-
-        changeState(new ConnectionState(this));
+        
+        initState();
+    }
+    protected void initState() {
+        try {
+            ClientSocketThread socket = new ClientSocketThread(new Socket(ConnectionState.DEFAULT_ADRESS, ConnectionState.DEFAULT_PORT), "not_logged_yet");
+            socket.start();
+            
+            changeState(new LoginState(this, socket));
+        }
+        catch(UnknownHostException e) {
+            changeState(new ConnectionState(this, e.getMessage()));
+        }
+        catch (IOException e) {
+            changeState(new ConnectionState(this, "Aucun serveur n'est rattaché au port de défaut"));
+        }
     }
 
     public void changeState(WindowState state) {
@@ -59,6 +78,8 @@ public class Window {
     }
 
     public void resize_window(Dimension dimension) {
+        if (frame.getSize().equals(dimension)) return;
+        
         frame.setSize(dimension);
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         int dx = ge.getCenterPoint().x - dimension.width / 2;
