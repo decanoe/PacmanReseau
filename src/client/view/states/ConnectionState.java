@@ -30,7 +30,7 @@ public class ConnectionState extends WindowState {
     public void createInterface(JPanel panel, JFrame frame) {
         panel.setLayout(new GridLayout(4, 1));
 
-        panel.add(new JLabel("Entrez les informations de connection"));
+        panel.add(new JLabel("Entrez les informations du serveur de jeu"));
 
         JPanel info_panel = new JPanel();
         info_panel.setLayout(new GridLayout(3, 2));

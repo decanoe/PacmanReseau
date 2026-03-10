@@ -28,9 +28,10 @@ public class LobyState extends WindowState {
 
     @Override
     public void createInterface(JPanel panel, JFrame frame) {
+        frame.setTitle(Window.WINDOW_TITLE + " - " + "loby");
         panel.setLayout(new GridLayout(3, 1));
 
-        panel.add(new JLabel("Choisissez la partie"));
+        panel.add(new JLabel("Choisissez une partie"));
         
         room_list = new JPanel();
         room_list.setLayout(new BoxLayout(room_list, BoxLayout.Y_AXIS));

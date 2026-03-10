@@ -35,7 +35,7 @@ public class LoginState extends WindowState {
     public void createInterface(JPanel panel, JFrame frame) {
         panel.setLayout(new GridLayout(4, 1));
 
-        panel.add(new JLabel("Entrez les informations de connection"));
+        panel.add(new JLabel("Entrez vos informations de connection"));
 
         JPanel info_panel = new JPanel();
         info_panel.setLayout(new GridLayout(3, 2));
@@ -46,7 +46,7 @@ public class LoginState extends WindowState {
         info_panel.add(new JLabel("Pseudo : "));
         info_panel.add(nameField);
         pwdField = new TextField("");
-        info_panel.add(new JLabel("Password : "));
+        info_panel.add(new JLabel("Mot de passe : "));
         info_panel.add(pwdField);
 
         debug_label = new JLabel("");

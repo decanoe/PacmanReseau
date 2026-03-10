@@ -26,7 +26,7 @@ public final class GoToRoomQuery extends QueryClaim {
         
         this.roomType = RoomType.valueOf(json.getString(TOKEN.ROOM_TYPE));
 
-        if (roomType == RoomType.Old) this.room_name = json.getString(TOKEN.NAME);
+        if (roomType == RoomType.Old || (roomType == RoomType.New && isAnswer())) this.room_name = json.getString(TOKEN.NAME);
     }
 
     public static final String ACTION = "go_to_room";
@@ -37,7 +37,7 @@ public final class GoToRoomQuery extends QueryClaim {
         JSONObject json = super.toJson();
 
         json.put(TOKEN.ROOM_TYPE, roomType.toString());
-        json.put(TOKEN.NAME, room_name);
+        if (room_name != null) json.put(TOKEN.NAME, room_name);
 
         return json;
     }

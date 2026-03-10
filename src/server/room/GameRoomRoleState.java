@@ -18,6 +18,8 @@ public class GameRoomRoleState extends GameRoomState {
     }
 
     protected void checkReady() {
+        if (room.opened_sokets.isEmpty()) return;
+
         for (RoomSocketThread socket : room.opened_sokets) {
             if (choices.getOrDefault(socket, ChoseRoleQuery.Choice.None) == ChoseRoleQuery.Choice.None) return;
         }
