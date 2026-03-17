@@ -17,18 +17,18 @@ import model.protocol.Queries.CosmeticsQuery;
 import model.protocol.Queries.GameStateQuery;
 import model.protocol.Queries.GoToRoomQuery;
 
-public abstract class GameRoomState extends WindowState {
+public abstract class GameState extends WindowState {
     String room_name;
     protected Color[] maze_colors;
 
-    public GameRoomState(Window window, ClientSocketThread socket, String room_name) {
+    public GameState(Window window, ClientSocketThread socket, String room_name) {
         super(window, socket);
         this.room_name = room_name;
 
         new GameStateQuery().send(socket);
         new CosmeticsQuery().send(socket);
     }
-    public GameRoomState(GameRoomState previous_state) {
+    public GameState(GameState previous_state) {
         super(previous_state.window, previous_state.socket);
         this.room_name = previous_state.room_name;
         this.maze_colors = previous_state.maze_colors;

@@ -13,10 +13,10 @@ import client.socket.ClientSocketThread;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
 
-public class GameRoleState extends GameRoomState {
+public class GameRoleState extends GameState {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
 
-    public GameRoleState(GameRoomState previous_state) {
+    public GameRoleState(GameState previous_state) {
         super(previous_state);
     }
 

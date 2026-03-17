@@ -15,6 +15,7 @@ import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.CosmeticsQuery;
 import model.protocol.Queries.ChoseRoleQuery.Choice;
+import model.protocol.Queries.GameStateQuery.WinState;
 import model.protocol.Queries.GameStateQuery;
 import server.socket.RoomSocketThread;
 import server.web_interface.WebInterface;
@@ -117,6 +118,7 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         EntityType winners = pacman_win ? EntityType.Pacman : EntityType.Ghost;
         for (Entry<RoomSocketThread, ThreadControlledBehavior> entry : agentBehaviors.entrySet()) {
             WebInterface.updateInfos(entry.getKey().getPlayerLogin(), entry.getValue().get_agent().get_type() == winners);
+            new GameStateQuery().fillAnswerNotRunning(pacman_win ? WinState.Pacman : WinState.Ghost).send(entry.getKey());
         }
 
         if (room.state == this) room.setState(new GameRoomRoleState(room));

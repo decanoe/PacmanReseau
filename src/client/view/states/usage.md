@@ -16,6 +16,10 @@ GameWaitState ------------
 \/
 GameRoleState ------------
 ||                      /\
-|| roles are ready      || end of game
+|| roles are ready      ||
 \/                      ||
-GamePlayState ------------
+GamePlayState --------- ||
+||                      ||
+|| end of game          || wait 
+\/                      ||
+GameResultState ----------

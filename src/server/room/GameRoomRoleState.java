@@ -5,6 +5,7 @@ import java.util.HashMap;
 import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
+import model.protocol.Queries.GameStateQuery.WinState;
 import server.socket.RoomSocketThread;
 
 public class GameRoomRoleState extends GameRoomState {
@@ -14,7 +15,7 @@ public class GameRoomRoleState extends GameRoomState {
         super(room);
         this.choices = new HashMap<>();
 
-        room.sendToAll(new GameStateQuery().fillAnswerNotRunning());
+        room.sendToAll(new GameStateQuery().fillAnswerNotRunning(WinState.None));
     }
 
     protected void checkReady() {
@@ -41,7 +42,7 @@ public class GameRoomRoleState extends GameRoomState {
     }
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
-        query.fillAnswerNotRunning().send(socket);
+        query.fillAnswerNotRunning(WinState.None).send(socket);
         return true;
     }
     @Override

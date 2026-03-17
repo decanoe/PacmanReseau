@@ -8,12 +8,12 @@ import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.protocol.Queries.GameStateQuery;
 
-public class GameWaitState extends GameRoomState {
+public class GameWaitState extends GameState {
 
     public GameWaitState(Window window, ClientSocketThread socket, String room_name) {
         super(window, socket, room_name);
     }
-    public GameWaitState(GameRoomState previous_state) {
+    public GameWaitState(GameState previous_state) {
         super(previous_state);
     }
 

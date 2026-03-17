@@ -9,8 +9,11 @@ public final class GameStateQuery extends Query {
     private static final class TOKEN {
         public static final String RUNNING = "running";
         public static final String MAZE = "maze";
+        public static final String WINSTATE = "win_state";
     }
+    public enum WinState { Pacman, Ghost, None };
 
+    protected WinState state = WinState.None;
     protected boolean running;
     protected Maze maze = null;
     public GameStateQuery() {}
@@ -18,6 +21,7 @@ public final class GameStateQuery extends Query {
         super(json);
 
         if (isAnswer()) {
+            this.state = WinState.valueOf(json.getString(TOKEN.WINSTATE));
             this.running = json.getBoolean(TOKEN.RUNNING);
             if (isGameRunning()) {
                 this.maze = new Maze(json.getJSONObject(TOKEN.MAZE));
@@ -33,6 +37,7 @@ public final class GameStateQuery extends Query {
         JSONObject json = super.toJson();
 
         if (isAnswer()) {
+            json.put(TOKEN.WINSTATE, state.toString());
             json.put(TOKEN.RUNNING, running);
             if (isGameRunning()) {
                 json.put(TOKEN.MAZE, maze.toJSON());
@@ -42,9 +47,10 @@ public final class GameStateQuery extends Query {
         return json;
     }
 
-    public GameStateQuery fillAnswerNotRunning() {
+    public GameStateQuery fillAnswerNotRunning(WinState state) {
         super.setAnswer();
         this.running = false;
+        this.state = state;
         
         return this;
     }
@@ -61,5 +67,8 @@ public final class GameStateQuery extends Query {
     }
     public Maze getMaze() {
         return maze;
+    }
+    public WinState getWinState() {
+        return state;
     }
 }

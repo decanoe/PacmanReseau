@@ -15,12 +15,13 @@ import model.game.maze.Maze;
 import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
+import model.protocol.Queries.GameStateQuery.WinState;
 
-public class GamePlayState extends GameRoomState implements KeyListener {
+public class GamePlayState extends GameState implements KeyListener {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
     protected Maze maze;
 
-    public GamePlayState(GameRoomState previous_state, Maze maze) {
+    public GamePlayState(GameState previous_state, Maze maze) {
         super(previous_state);
         this.maze = maze;
     }
@@ -71,7 +72,9 @@ public class GamePlayState extends GameRoomState implements KeyListener {
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (!query.isGameRunning()) {
-            window.changeState(new GameWaitState(this));
+            WinState state = query.getWinState();
+            if (state == WinState.None) window.changeState(new GameWaitState(this));
+            window.changeState(new GameResultState(this, state == WinState.Pacman));
         }
         else {
             maze = query.getMaze();
