@@ -4,11 +4,7 @@ import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Base64;
-import java.util.Random;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -21,8 +17,6 @@ import model.protocol.Queries.LoginQuery;
 import model.protocol.Queries.LoginSaltQuery;
 
 public class LoginState extends WindowState {
-    static String[] RANDOM_NAMES = { "Tom", "Paul", "Bob", "Louis", "Charles", "Elise", "Camille", "Valérie" };
-
     JLabel debug_label;
     TextField nameField;
     TextField pwdField;
@@ -41,8 +35,7 @@ public class LoginState extends WindowState {
         info_panel.setLayout(new GridLayout(3, 2));
         panel.add(info_panel);
 
-        Random rand = new Random();
-        nameField = new TextField(RANDOM_NAMES[rand.nextInt(RANDOM_NAMES.length)]);
+        nameField = new TextField("");
         info_panel.add(new JLabel("Pseudo : "));
         info_panel.add(nameField);
         pwdField = new TextField("");
@@ -72,20 +65,7 @@ public class LoginState extends WindowState {
     }
     @Override
     protected boolean onReceiveLoginSalt(LoginSaltQuery query, ClientSocketThread socket) {
-        String salt = query.getSalt();
-        String hash = "";
-
-        try {
-            hash = hashPBKDF2(pwdField.getText(), salt);
-        } catch (Exception e) {
-            debug_label.setText(e.getMessage());
-            button.setEnabled(true);
-            nameField.setEnabled(true);
-            pwdField.setEnabled(true);
-            return true;
-        }
-        
-        new LoginQuery(query.getLogin(), hash).send(socket);
+        new LoginQuery(query.getLogin(), pwdField.getText(), query.getSalt()).send(socket);
 
         return true;
     }
@@ -104,24 +84,5 @@ public class LoginState extends WindowState {
         }
 
         return true;
-    }
-
-    private static String hashPBKDF2(String password, String saltBase64) throws Exception {
-		byte[] salt = Base64.getDecoder().decode(saltBase64);
-
-        int iterations = 100000;
-        int keyLength = 256;
-
-        PBEKeySpec spec = new PBEKeySpec(
-                password.toCharArray(),
-                salt,
-                iterations,
-                keyLength
-        );
-
-        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
-        byte[] derived = skf.generateSecret(spec).getEncoded();
-
-        return Base64.getEncoder().encodeToString(derived);
     }
 }
