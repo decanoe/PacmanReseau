@@ -67,18 +67,18 @@ public final class WebInterface {
 
     public static String getSalt(String login) {
         HttpURLConnection http = openConnection(getWebLoginURL());
-        if (http == null) return null;
+        if (http == null) return "null";
 
         // Corps de la requête
         String data = "{ \"action\": \"getSaltUser\", \"user\": \"" + login + "\", \"session\": false }";
 
         JSONObject json = sendRequest(http, data);
-        if (json == null) return null;
+        if (json == null) return "null";
 
         if (checkStatus(json)) {
             if (json.has("salt")) return json.getString("salt");
         }
-        return null;
+        return "null";
     }
     public static boolean validatePassword(String login, String password_hash) {
         HttpURLConnection http = openConnection(getWebLoginURL());

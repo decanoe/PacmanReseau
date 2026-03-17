@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import model.protocol.QueryManager;
 import model.socket.SocketThread;
+import server.MainServer;
 import server.room.Room;
 
 public class RoomSocketThread extends SocketThread {
@@ -14,6 +15,7 @@ public class RoomSocketThread extends SocketThread {
     public RoomSocketThread(Socket socket, Room room) {
         super(socket);
         setRoom(room);
+        MainServer.players.add(this);
     }
     public void setRoom(Room room) {
         if (this.room != null) this.room.removeSoket(this);
@@ -29,7 +31,7 @@ public class RoomSocketThread extends SocketThread {
     @Override
     public void onConnectionStart() { }
     @Override
-    public void onConnectionEnd() { room.removeSoket(this); }
+    public void onConnectionEnd() { room.removeSoket(this); MainServer.players.remove(this); }
 
     @Override
     protected void print(String string) {

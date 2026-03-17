@@ -2,6 +2,7 @@ package server.room;
 
 import model.protocol.Queries.LoginQuery;
 import model.protocol.Queries.LoginSaltQuery;
+import server.MainServer;
 import server.socket.RoomSocketThread;
 import server.web_interface.WebInterface;
 
@@ -19,6 +20,13 @@ public class LoginRoom extends Room {
     }
     @Override
     protected boolean onReceiveLogin(LoginQuery query, RoomSocketThread socket) {
+        for (RoomSocketThread other_socket : MainServer.players) {
+            if (other_socket.getPlayerLogin().equals(query.getLogin())) {
+                query.fillDenie().send(socket);
+                return true;
+            }
+        }
+
         if (WebInterface.validatePassword(query.getLogin(), query.getPasswordHash())) {
             query.fillAccept().send(socket);
             socket.setRoom(loby);

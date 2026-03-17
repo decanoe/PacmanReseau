@@ -65,7 +65,15 @@ public class LoginState extends WindowState {
     }
     @Override
     protected boolean onReceiveLoginSalt(LoginSaltQuery query, ClientSocketThread socket) {
-        new LoginQuery(query.getLogin(), pwdField.getText(), query.getSalt()).send(socket);
+        if (query.getSalt().equals("null")) {
+            debug_label.setText("Informations de connection incorrectes");
+            button.setEnabled(true);
+            nameField.setEnabled(true);
+            pwdField.setEnabled(true);
+        }
+        else {
+            new LoginQuery(query.getLogin(), pwdField.getText(), query.getSalt()).send(socket);
+        }
 
         return true;
     }
@@ -77,7 +85,7 @@ public class LoginState extends WindowState {
             window.changeState(new LobyState(window, socket));
         }
         else {
-            debug_label.setText("Infos incorrectes");
+            debug_label.setText("Informations de connection incorrectes");
             button.setEnabled(true);
             nameField.setEnabled(true);
             pwdField.setEnabled(true);
