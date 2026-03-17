@@ -24,6 +24,9 @@ public class LobyRoom extends Room {
     protected void sendRoomList(RoomSocketThread socket) {
         new RoomListQuery(rooms).send(socket);
     }
+    protected void sendRoomList() {
+        sendToAll(new RoomListQuery(rooms));
+    }
 
     @Override
     protected boolean onReceiveRoomList(RoomListQuery query, RoomSocketThread socket) {
@@ -42,6 +45,7 @@ public class LobyRoom extends Room {
             rooms.add(new_room);
             socket.setRoom(new_room);
             query.fillAccept(new_room.getName()).send(socket);
+            sendRoomList();
             return true;
         }
 
