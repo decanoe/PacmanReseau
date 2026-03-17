@@ -14,8 +14,8 @@ import model.game.maze.Maze.EntityType;
 public abstract class Agent {
     /** the current position of the agent */
     protected PositionAgent position;
-    /** the color of the agent */
-    protected Color color;
+    /** the colors of the agent */
+    protected Color[] colors;
     /** the current last position of the agent <p> used to detect agents crossing each other */
     private PositionAgent last_position;
     /** the behavior of the agent */
@@ -51,15 +51,21 @@ public abstract class Agent {
     public PositionAgent get_last_position() { return last_position; }
 
     /**
-     * a setter to the color of the agent
-     * @param the color of the agent
+     * a setter to the colors of the agent
+     * @param colors the colors of the agent
      */
-    public void set_color(Color color) { this.color = color; }
+    public void set_colors(Color[] colors) { this.colors = colors; }
     /**
-     * a getter to the color of the agent
-     * @return the color of the agent
+     * a setter to the colors of the agent
+     * @param color1 the first color of the agent
+     * @param color2 the second color of the agent
      */
-    public Color get_color() { return color; }
+    public void set_colors(Color color1, Color color2) { this.colors = new Color[] { color1, color2 }; }
+    /**
+     * a getter to the colors of the agent
+     * @return the colors of the agent
+     */
+    public Color[] get_colors() { return colors; }
 
     /**
      * sets the agent behavior ands returns itself
@@ -119,12 +125,14 @@ public abstract class Agent {
     private static final class TOKEN {
         public static final String TYPE = "type";
         public static final String POSITION = "position";
-        public static final String COLOR = "color";
+        public static final String COLOR1 = "color1";
+        public static final String COLOR2 = "color2";
     }
     public JSONObject toJSON() {
         JSONObject json = new JSONObject();
         json.put(TOKEN.POSITION, position.toJSON());
-        json.put(TOKEN.COLOR, color.getRGB());
+        json.put(TOKEN.COLOR1, colors[0].getRGB());
+        json.put(TOKEN.COLOR2, colors[1].getRGB());
         json.put(TOKEN.TYPE, get_type().toString());
         return json;
     }
@@ -133,12 +141,12 @@ public abstract class Agent {
 
         if (type == EntityType.Ghost) {
             Agent agent = new GhostAgent(PositionAgent.fromJSON(json.getJSONObject(TOKEN.POSITION)));
-            agent.set_color(new Color(json.getInt(TOKEN.COLOR)));
+            agent.set_colors(new Color(json.getInt(TOKEN.COLOR1)), new Color(json.getInt(TOKEN.COLOR2)));
             return agent;
         }
         else if (type == EntityType.Pacman) {
             Agent agent = new PacmanAgent(PositionAgent.fromJSON(json.getJSONObject(TOKEN.POSITION)));
-            agent.set_color(new Color(json.getInt(TOKEN.COLOR)));
+            agent.set_colors(new Color(json.getInt(TOKEN.COLOR1)), new Color(json.getInt(TOKEN.COLOR2)));
             return agent;
         }
 

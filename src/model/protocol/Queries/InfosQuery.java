@@ -36,7 +36,7 @@ public final class InfosQuery extends Query {
 
     public InfosQuery fillAnswer(SocketThread socket) {
         super.setAnswer();
-        this.name = socket.getPlayerName();
+        this.name = socket.getPlayerLogin();
         
         return this;
     }

@@ -61,7 +61,7 @@ public abstract class Room extends QueryManager<RoomSocketThread> {
 
         JSONArray players = new JSONArray();
         for (RoomSocketThread socket : opened_sokets) {
-            players.put(socket.getPlayerName());
+            players.put(socket.getPlayerLogin());
         }
         obj.put("players", players);
         return obj;

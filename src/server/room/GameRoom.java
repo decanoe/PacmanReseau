@@ -2,9 +2,11 @@ package server.room;
 
 import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
+import model.protocol.Queries.CosmeticsQuery;
 import model.protocol.Queries.GameStateQuery;
 import model.protocol.Queries.GoToRoomQuery;
 import server.socket.RoomSocketThread;
+import server.web_interface.WebInterface;
 
 public class GameRoom extends Room {
     private static int ID_GENERATOR = 0;
@@ -50,5 +52,10 @@ public class GameRoom extends Room {
     @Override
     protected boolean onReceiveAgentMovement(AgentMovementQuery query, RoomSocketThread socket) {
         return state.onReceiveAgentMovement(query, socket);
+    }
+    @Override
+    protected boolean onReceiveCosmeticsQuery(CosmeticsQuery query, RoomSocketThread socket) {
+        query.fillAnswer(WebInterface.getActiveCosmetics(socket.getPlayerLogin())).send(socket);
+        return true;
     }
 }

@@ -10,15 +10,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import client.socket.ClientSocketThread;
-import client.view.Window;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.GameStateQuery;
 
 public class GameRoleState extends GameRoomState {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
 
-    public GameRoleState(Window window, ClientSocketThread soket, String room_name) {
-        super(window, soket, room_name);
+    public GameRoleState(GameRoomState previous_state) {
+        super(previous_state);
     }
 
     JButton pacmanButton, ghostButton;
@@ -57,10 +56,10 @@ public class GameRoleState extends GameRoomState {
     protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (query.isGameRunning()) {
             if (choice == ChoseRoleQuery.Choice.None) {
-                window.changeState(new GameWaitState(window, socket, room_name));
+                window.changeState(new GameWaitState(this));
             }
             else {
-                window.changeState(new GamePlayState(window, socket, room_name, query.getMaze()));
+                window.changeState(new GamePlayState(this, query.getMaze()));
             }
         }
         return true;

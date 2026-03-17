@@ -12,13 +12,15 @@ import model.protocol.Queries.InfosQuery;
 import model.protocol.Queries.StopQuery;
 
 public abstract class SocketThread extends Thread {
-    protected String name;
+    private final static int MAX_PRINT_SIZE = 100;
+
+    protected String login;
     protected Socket socket;
 	protected BufferedReader entree;
 	protected PrintWriter sortie;
 
     public SocketThread(Socket socket, String name) {
-        this.name = name;
+        this.login = name;
         this.socket = socket;
         try {
             entree = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -36,11 +38,11 @@ public abstract class SocketThread extends Thread {
     public boolean isValid() {
         return socket.isConnected() && !socket.isClosed();
     }
-    public String getPlayerName() {
-        return name;
+    public String getPlayerLogin() {
+        return login;
     }
     public void setPlayerName(String name) {
-        this.name = name;
+        this.login = name;
     }
 
     public void send(JSONObject json) {
@@ -60,7 +62,7 @@ public abstract class SocketThread extends Thread {
     protected abstract boolean onQuery(JSONObject json);
     public boolean onReceiveInfos(InfosQuery query) {
         if (query.isAnswer()) {
-            this.name = query.getName();
+            this.login = query.getName();
         }
         else {
             query.fillAnswer(this).send(this);
@@ -84,7 +86,8 @@ public abstract class SocketThread extends Thread {
                     println("fermeture prématurée du socket (perte de connection)");
                     break;
                 }
-                println("a reçu : |"+json+"|");
+                if (json.length() < MAX_PRINT_SIZE) println("a reçu : |"+json+"|");
+                else println("a reçu : |"+json.substring(0, MAX_PRINT_SIZE)+"...|");
             } while (onQuery(new JSONObject(json)));
 
             sendStop();
@@ -105,7 +108,7 @@ public abstract class SocketThread extends Thread {
         onConnectionEnd();
     }
     protected void print(String string) {
-        System.out.print(name + "\t(" + Thread.currentThread().getName() + ") " + string);
+        System.out.print(login + "\t(" + Thread.currentThread().getName() + ") " + string);
     }
     protected void println(String string) {
         print(string + "\n");

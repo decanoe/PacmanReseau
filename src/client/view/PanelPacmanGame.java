@@ -13,8 +13,6 @@ import model.game.maze.Maze;
 public class PanelPacmanGame extends JPanel {
 	private static final long serialVersionUID = 1L;
 
-	private Color wallColor = Color.BLUE;
-	private Color wallColor2 = Color.CYAN;
 	private double wallThickness = .15;
 
 	private double sizeAgents = .9;
@@ -105,13 +103,13 @@ public class PanelPacmanGame extends JPanel {
 	void drawPacmans(Graphics g, Agent agent, double size) {
 		int px = agent.get_position().getX();
 		int py = agent.get_position().getY();
-		Color color = agent.get_color();
+		Color[] colors = agent.get_colors();
 
 		if((px != -1) || (py != -1)){
 			double posx = px * draw_cell_width;
 			double posy = py * draw_cell_height;
 	
-			g.setColor(color);
+			g.setColor(colors[0]);
 			double nsx = draw_cell_width * size;
 			double nsy = draw_cell_height * size;
 			double npx = (draw_cell_width - nsx) / 2.0;
@@ -150,13 +148,14 @@ public class PanelPacmanGame extends JPanel {
 	void drawGhosts(Graphics g, Agent agent, double size) {
 		int px = agent.get_position().getX();
 		int py = agent.get_position().getY();
-		Color color = m.getGhostsScarred() ? ghostScarredColor : agent.get_color();
+		Color[] colors = agent.get_colors();
+		if (m.getGhostsScarred()) colors[0] = ghostScarredColor;
 
 		if((px != -1) || (py != -1)){
 			double posx = (px + .5 - size * sizeGhostWidth / 2) * draw_cell_width;
 			double posy = (py + .5 - size / 2) * draw_cell_height;
 			
-			g.setColor(color);
+			g.setColor(colors[0]);
 			
 			double width = draw_cell_width * size * sizeGhostWidth;
 			double height = draw_cell_height * size;
@@ -165,7 +164,7 @@ public class PanelPacmanGame extends JPanel {
 			g.fillArc((int)posx, (int)posy, (int)width, (int)(height * sizeGhostWidth), 0, 180);
 			g.fillRect((int)posx, (int)(posy + height * sizeGhostWidth / 2 - 1), (int)width + 1, (int)(height * (1 - sizeGhostWidth / 2)) + 1);
 			
-			g.setColor(Color.BLACK);
+			g.setColor(colors[1]);
 			double centerx = (px + .5) * draw_cell_width;
 			if (agent.get_position().getDir() == Direction.WEST) centerx -= .1 * draw_cell_width;
 			if (agent.get_position().getDir() == Direction.EAST) centerx += .1 * draw_cell_width;
@@ -179,8 +178,6 @@ public class PanelPacmanGame extends JPanel {
 
 			g.fillOval((int)(centerx + offset - w * .5), (int)(centery - h * .5), (int)w, (int)h);
 			g.fillOval((int)(centerx - offset - w * .5), (int)(centery - h * .5), (int)w, (int)h);
-
-			g.setColor(Color.black);
 		}
 	}
 	void drawCell(Graphics g, int x, int y) {
@@ -205,10 +202,12 @@ public class PanelPacmanGame extends JPanel {
 	void drawWall(Graphics g, int px, int py) {
 		double posx = px * draw_cell_width;
 		double posy = py * draw_cell_height;
-		g.setColor(wallColor);
+		Color[] colors = m.get_colors();
+
+		g.setColor(colors[0]);
 		g.fillRect((int)posx, (int)posy, (int)(draw_cell_width + 1), (int)(draw_cell_height + 1));
 
-		g.setColor(wallColor2);
+		g.setColor(colors[1]);
 		if (!m.isWall(px+1, py)) g.fillRect((int)(posx + (1-wallThickness) * draw_cell_width + 1), (int)posy, (int)(wallThickness * draw_cell_width + 1), (int)(draw_cell_height + 1));
 		if (!m.isWall(px-1, py)) g.fillRect((int)posx, (int)posy, (int)(wallThickness * draw_cell_width + 1), (int)(draw_cell_height + 1));
 		if (!m.isWall(px, py+1)) g.fillRect((int)posx, (int)(posy + (1-wallThickness) * draw_cell_height + 1), (int)(draw_cell_width + 1), (int)(wallThickness * draw_cell_height + 1));

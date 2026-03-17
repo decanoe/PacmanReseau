@@ -14,7 +14,7 @@ public class GhostAgent extends Agent {
      */
     public GhostAgent(PositionAgent position) {
         super(position);
-        this.color = new Color(Color.HSBtoRGB((float)Math.random(), 1, 1));
+        set_colors(new Color(Color.HSBtoRGB((float)Math.random(), 1, 1)), Color.BLACK);
     }
 
     @Override

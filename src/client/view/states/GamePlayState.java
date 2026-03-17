@@ -10,7 +10,6 @@ import javax.swing.JPanel;
 
 import client.socket.ClientSocketThread;
 import client.view.PanelPacmanGame;
-import client.view.Window;
 import model.game.agent.AgentAction.Direction;
 import model.game.maze.Maze;
 import model.protocol.Queries.AgentMovementQuery;
@@ -21,8 +20,8 @@ public class GamePlayState extends GameRoomState implements KeyListener {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
     protected Maze maze;
 
-    public GamePlayState(Window window, ClientSocketThread soket, String room_name, Maze maze) {
-        super(window, soket, room_name);
+    public GamePlayState(GameRoomState previous_state, Maze maze) {
+        super(previous_state);
         this.maze = maze;
     }
 
@@ -72,10 +71,11 @@ public class GamePlayState extends GameRoomState implements KeyListener {
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (!query.isGameRunning()) {
-            window.changeState(new GameWaitState(window, socket, room_name));
+            window.changeState(new GameWaitState(this));
         }
         else {
             maze = query.getMaze();
+            maze.set_colors(maze_colors);
             pacman_panel.setMaze(maze);
             pacman_panel.repaint();
         }

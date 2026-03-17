@@ -10,8 +10,11 @@ import model.protocol.Queries.GameStateQuery;
 
 public class GameWaitState extends GameRoomState {
 
-    public GameWaitState(Window window, ClientSocketThread soket, String room_name) {
-        super(window, soket, room_name);
+    public GameWaitState(Window window, ClientSocketThread socket, String room_name) {
+        super(window, socket, room_name);
+    }
+    public GameWaitState(GameRoomState previous_state) {
+        super(previous_state);
     }
 
     @Override
@@ -23,7 +26,7 @@ public class GameWaitState extends GameRoomState {
 
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
-        if (!query.isGameRunning()) window.changeState(new GameRoleState(window, socket, room_name));
+        if (!query.isGameRunning()) window.changeState(new GameRoleState(this));
         return true;
     }
 }

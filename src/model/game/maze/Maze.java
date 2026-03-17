@@ -1,5 +1,6 @@
 package model.game.maze;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -30,6 +31,9 @@ public class Maze implements Serializable, Cloneable {
 	private int size_x;
 	/** The height of the maze (in cells) */
 	private int size_y;
+
+	/** The colors of the maze */
+	private Color[] colors;
 
 	/** The current turn */
 	private int turn = 0;
@@ -154,6 +158,8 @@ public class Maze implements Serializable, Cloneable {
 			e.printStackTrace();
 			throw new Exception("Error at file loading: " + e.getMessage());
 		}
+
+		this.colors = get_default_colors();
 	}
 	/**
      * Creates a Maze from a json
@@ -161,6 +167,7 @@ public class Maze implements Serializable, Cloneable {
      */
     public Maze(JSONObject json) {
 		// Initialisation du labyrinthe
+		colors = new Color[] { new Color(json.getInt("color1")), new Color(json.getInt("color2")) };
 		size_x = json.getInt("size_x");
 		size_y = json.getInt("size_y");
 		warp_x = json.getBoolean("warp_x");
@@ -501,6 +508,24 @@ public class Maze implements Serializable, Cloneable {
 	}
 
 	/**
+     * a setter to the colors of the maze
+     * @param colors the colors of the maze
+     */
+    public void set_colors(Color[] colors) { this.colors = colors; }
+	/**
+     * a setter to the colors of the maze
+     * @param color1 the first color of the maze
+     * @param color2 the second color of the maze
+     */
+    public void set_colors(Color color1, Color color2) { this.colors = new Color[] { color1, color2 }; }
+    /**
+     * a getter to the colors of the maze
+     * @return the colors of the maze
+     */
+    public Color[] get_colors() { return colors; }
+    public static Color[] get_default_colors() { return new Color[] { Color.BLUE, Color.cyan }; }
+
+	/**
 	 * a getter to the list of pacman positions in the maze
 	 * @return the list of pacman positions in the maze
 	 */
@@ -562,6 +587,9 @@ public class Maze implements Serializable, Cloneable {
 		JSONObject json = new JSONObject();
 		json.put("statics", statics);
 		json.put("agents", agents);
+
+		json.put("color1", colors[0].getRGB());
+		json.put("color2", colors[1].getRGB());
 
 		json.put("size_x", size_x);
 		json.put("size_y", size_y);

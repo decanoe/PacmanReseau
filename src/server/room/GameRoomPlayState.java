@@ -12,9 +12,11 @@ import model.game.agent.Agent;
 import model.game.agent.behavior.ThreadControlledBehavior;
 import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
+import model.protocol.Queries.CosmeticsQuery;
 import model.protocol.Queries.ChoseRoleQuery.Choice;
 import model.protocol.Queries.GameStateQuery;
 import server.socket.RoomSocketThread;
+import server.web_interface.WebInterface;
 
 public class GameRoomPlayState extends GameRoomState implements PropertyChangeListener {
     PacmanGame game;
@@ -36,6 +38,15 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         room.sendToAll(new GameStateQuery().fillAnswerRunning(game.get_maze()));
     }
 
+    protected void mapPlayerToAgent(RoomSocketThread thread, Agent agent) {
+        ThreadControlledBehavior behavior = new ThreadControlledBehavior();
+        agent.set_behavior(behavior);
+        agentBehaviors.put(thread, behavior);
+
+        CosmeticsQuery query = new CosmeticsQuery().fillAnswer(WebInterface.getActiveCosmetics(thread.getPlayerLogin()));
+
+        agent.set_colors(query.getAgentColors(agent.get_type(), agent.get_colors()));
+    }
     protected void mapPlayersToAgents(HashMap<RoomSocketThread, ChoseRoleQuery.Choice> choices) {
         this.agentBehaviors = new HashMap<>();
 
@@ -45,20 +56,15 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         Collections.shuffle(pacmans);
 
         int ghosts_counter = 0, pacmans_counter = 0;
-        ThreadControlledBehavior b;
         for (Entry<RoomSocketThread,Choice> entry : choices.entrySet()) {
             switch (entry.getValue()) {
                 case Choice.Pacman:
                     if (pacmans_counter >= pacmans.size()) break;
-                    b = new ThreadControlledBehavior();
-                    pacmans.get(pacmans_counter++).set_behavior(b);
-                    agentBehaviors.put(entry.getKey(), b);
+                    mapPlayerToAgent(entry.getKey(), pacmans.get(pacmans_counter++));
                     break;
                 case Choice.Ghost:
                     if (ghosts_counter >= ghosts.size()) break;
-                    b = new ThreadControlledBehavior();
-                    ghosts.get(ghosts_counter++).set_behavior(b);
-                    agentBehaviors.put(entry.getKey(), b);
+                    mapPlayerToAgent(entry.getKey(), ghosts.get(ghosts_counter++));
                     break;
                 default:
                     break;
@@ -103,7 +109,6 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         agentBehaviors.get(socket).setNextDirection(query.getDirection());
         return true;
     }
-
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

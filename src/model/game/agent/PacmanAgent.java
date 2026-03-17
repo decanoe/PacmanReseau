@@ -14,7 +14,7 @@ public class PacmanAgent extends Agent {
      */
     public PacmanAgent(PositionAgent position) {
         super(position);
-        this.color = Color.yellow;
+        set_colors(Color.yellow, Color.yellow);
     }
 
     @Override

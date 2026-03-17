@@ -95,7 +95,7 @@ public final class WebInterface {
         if (http == null) return new JSONObject();
 
         // Corps de la requête
-        String data = "{ \"action\": \"login\", \"user\": \"" + login + "\", \"session\": false }";
+        String data = "{ \"action\": \"getActiveCosm\", \"user\": \"" + login + "\", \"session\": false }";
 
         JSONObject json = sendRequest(http, data);
         if (json == null) return new JSONObject();

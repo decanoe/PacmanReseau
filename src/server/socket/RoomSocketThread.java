@@ -34,7 +34,7 @@ public class RoomSocketThread extends SocketThread {
     @Override
     protected void print(String string) {
         if (room != null)
-            System.out.print(name + "\t(" + Thread.currentThread().getName() + " / " + room.getName() + ") " + string);
+            System.out.print(login + "\t(" + Thread.currentThread().getName() + " / " + room.getName() + ") " + string);
         else super.print(string);
     }
 }
