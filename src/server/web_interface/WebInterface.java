@@ -14,10 +14,12 @@ public final class WebInterface {
     private static final int DEFAULT_WEB_PORT = 8080;
     private static final String WEB_LOGIN_PAGE_PATH = "/PacmanReseau/LoginPage";
     private static final String WEB_COSMETIC_PAGE_PATH = "/PacmanReseau/CosmeticPage";
+    private static final String WEB_INFO_PAGE_PATH = "/PacmanReseau/InfoUserPage";
 
     protected static String getWebBaseURL() { return DEFAULT_WEB_ADRESS + DEFAULT_WEB_PORT; }
     protected static String getWebLoginURL() { return getWebBaseURL() + WEB_LOGIN_PAGE_PATH; }
     protected static String getWebCosmeticURL() { return getWebBaseURL() + WEB_COSMETIC_PAGE_PATH; }
+    protected static String getWebInfoURL() { return getWebBaseURL() + WEB_INFO_PAGE_PATH; }
     
     @SuppressWarnings("deprecation")
     protected static HttpURLConnection openConnection(String url) {
@@ -102,5 +104,17 @@ public final class WebInterface {
 
         if (checkStatus(json)) return json;
         return new JSONObject();
+    }
+    public static boolean updateInfos(String login, boolean win) {
+        HttpURLConnection http = openConnection(getWebInfoURL());
+        if (http == null) return false;
+
+        // Corps de la requête
+        String data = "{ \"action\": \"updateUser\", \"user\": \"" + login + "\", \"session\": false, \"userGameWin\": " + win + " }";
+
+        JSONObject json = sendRequest(http, data);
+        if (json == null) return false;
+
+        return checkStatus(json);
     }
 }

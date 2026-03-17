@@ -16,7 +16,7 @@ import model.game.maze.Maze.EntityType;
  * <ul>
  * <li>"maze" the used Maze fired when initialisation occures</li>
  * <li>"ghost_scared" a boolean indicating wether ghosts are scared</li>
- * <li>"game_over" an int fired when a game over occurs (with the tun it occured)</li>
+ * <li>"game_over" an boolean fired when a game over occurs (true if pacman wins, false else)</li>
  * @see Game Game doc for a list of all base property
  */
 public class PacmanGame extends Game {
@@ -229,6 +229,12 @@ public class PacmanGame extends Game {
     @Override
     protected void game_over() {
         System.out.println("PacmanGame.game_over() -> at turn " + turn);
-        support.firePropertyChange("game_over", turn-1, turn);
+
+        boolean pacman_left = false;
+        for (Agent agent : agents) {
+            if (agent.get_type() == EntityType.Pacman) pacman_left = true;
+        }
+
+        support.firePropertyChange("game_over", !pacman_left, pacman_left);
     }
 }

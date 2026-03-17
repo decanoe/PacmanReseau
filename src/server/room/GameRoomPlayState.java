@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import model.game.PacmanGame;
 import model.game.agent.Agent;
 import model.game.agent.behavior.ThreadControlledBehavior;
+import model.game.maze.Maze.EntityType;
 import model.protocol.Queries.AgentMovementQuery;
 import model.protocol.Queries.ChoseRoleQuery;
 import model.protocol.Queries.CosmeticsQuery;
@@ -110,12 +111,20 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         return true;
     }
 
+    protected void onGameOver(boolean pacman_win) {
+        System.out.println("End of game !");
+
+        EntityType winners = pacman_win ? EntityType.Pacman : EntityType.Ghost;
+        for (Entry<RoomSocketThread, ThreadControlledBehavior> entry : agentBehaviors.entrySet()) {
+            WebInterface.updateInfos(entry.getKey().getPlayerLogin(), entry.getValue().get_agent().get_type() == winners);
+        }
+
+        if (room.state == this) room.setState(new GameRoomRoleState(room));
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals("turn")) sendUpdate();
-        if (evt.getPropertyName().equals("game_over")) {
-            System.out.println("End of game !");
-            if (room.state == this) room.setState(new GameRoomRoleState(room));
-        }
+        if (evt.getPropertyName().equals("game_over")) onGameOver((boolean)evt.getNewValue());
     }
 }
