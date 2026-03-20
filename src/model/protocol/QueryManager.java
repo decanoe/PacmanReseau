@@ -16,6 +16,8 @@ public class QueryManager<T extends SocketThread> {
         if (RoomListQuery.ACTION.equals(action))        return onReceiveRoomList(new RoomListQuery(json), socket);
 
         if (ChoseRoleQuery.ACTION.equals(action))       return onReceiveChoseRole(new ChoseRoleQuery(json), socket);
+        if (PlayerListQuery.ACTION.equals(action))        return onReceivePlayerList(new PlayerListQuery(json), socket);
+
         if (GameStateQuery.ACTION.equals(action))       return onReceiveGameState(new GameStateQuery(json), socket);
         if (AgentMovementQuery.ACTION.equals(action))   return onReceiveAgentMovement(new AgentMovementQuery(json), socket);
         if (CosmeticsQuery.ACTION.equals(action))   return onReceiveCosmeticsQuery(new CosmeticsQuery(json), socket);
@@ -34,6 +36,8 @@ public class QueryManager<T extends SocketThread> {
     protected boolean onReceiveRoomList(RoomListQuery q, T socket) { return true; }
 
     protected boolean onReceiveChoseRole(ChoseRoleQuery q, T socket) { return true; }
+    protected boolean onReceivePlayerList(PlayerListQuery q, T socket) { return true; }
+
     protected boolean onReceiveGameState(GameStateQuery q, T socket) { return true; }
     protected boolean onReceiveAgentMovement(AgentMovementQuery q, T socket) { return true; }
     protected boolean onReceiveCosmeticsQuery(CosmeticsQuery q, T socket) { return true; }

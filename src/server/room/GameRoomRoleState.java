@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import model.protocol.queries.AgentMovementQuery;
 import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.ChoseRoleQuery.Choice;
 import model.protocol.queries.GameStateQuery;
 import model.protocol.queries.GameStateQuery.WinState;
 import server.socket.RoomSocketThread;
@@ -41,6 +42,12 @@ public class GameRoomRoleState extends GameRoomState {
         checkReady();
     }
     @Override
+    protected Choice getPlayerChoice(RoomSocketThread socket) {
+        if (!choices.containsKey(socket)) return Choice.None;
+        return choices.get(socket);
+    }
+
+    @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
         query.fillAnswerNotRunning(WinState.None).send(socket);
         return true;
@@ -49,6 +56,7 @@ public class GameRoomRoleState extends GameRoomState {
     protected boolean onReceiveChoseRole(ChoseRoleQuery query, RoomSocketThread socket) {
         choices.put(socket, query.getChoice());
         query.fillAccept().send(socket);
+        room.sendPlayerList();
         checkReady();
         return true;
     }

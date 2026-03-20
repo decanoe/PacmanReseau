@@ -1,10 +1,18 @@
 package client.view.states;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.font.TextAttribute;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -13,9 +21,12 @@ import javax.swing.JPanel;
 import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.game.maze.Maze;
+import model.protocol.data.PlayerInfo;
+import model.protocol.queries.ChoseRoleQuery.Choice;
 import model.protocol.queries.CosmeticsQuery;
 import model.protocol.queries.GameStateQuery;
 import model.protocol.queries.GoToRoomQuery;
+import model.protocol.queries.PlayerListQuery;
 
 public abstract class GameState extends WindowState {
     String room_name;
@@ -54,6 +65,14 @@ public abstract class GameState extends WindowState {
             }
         });
     }
+    JPanel sidePlayerList = null;
+    public JPanel createPlayerListPanel() {
+        sidePlayerList = new JPanel();
+        sidePlayerList.setLayout(new BoxLayout(sidePlayerList, BoxLayout.Y_AXIS));
+        sidePlayerList.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        return sidePlayerList;
+    }
 
     @Override
     protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSocketThread socket) {
@@ -68,5 +87,35 @@ public abstract class GameState extends WindowState {
         System.out.println("maze_colors[0]: " + maze_colors[0].toString());
         System.out.println("maze_colors[1]: " + maze_colors[1].toString());
         return true;
+    }
+    @Override
+    protected boolean onReceivePlayerList(PlayerListQuery query, ClientSocketThread socket) {
+        refreshPlayerList(query.getPlayersInfos());
+        return true;
+    }
+    protected void refreshPlayerList(ArrayList<PlayerInfo> infos) {
+        if (sidePlayerList == null) return;
+        sidePlayerList.removeAll();
+        
+        for (PlayerInfo info : infos) {
+            JPanel player = new JPanel();
+            player.setLayout(new BoxLayout(player, BoxLayout.X_AXIS));
+
+            JLabel name = new JLabel(info.name);
+            if (info.name.equals(this.socket.getPlayerLogin())) {
+                Font font = name.getFont();
+                Map<TextAttribute, Object> attributes = new HashMap<>(font.getAttributes());
+                attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
+                name.setFont(font.deriveFont(attributes));
+            }
+            player.add(name);
+
+            if (info.choice == Choice.Ghost) player.add(new JLabel(" (Fantôme)"));
+            else if (info.choice == Choice.Pacman) player.add(new JLabel(" (Pacman)"));
+
+            sidePlayerList.add(player);
+        }
+
+        window.repaint();
     }
 }

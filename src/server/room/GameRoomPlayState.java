@@ -95,6 +95,15 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         }
     }
     @Override
+    protected Choice getPlayerChoice(RoomSocketThread socket) {
+        if (!agentBehaviors.containsKey(socket)) return Choice.None;
+
+        EntityType e_t = agentBehaviors.get(socket).get_agent().get_type();
+        if (e_t == EntityType.Pacman) return Choice.Pacman;
+        if (e_t == EntityType.Ghost) return Choice.Ghost;
+        return Choice.None;
+    }
+    @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
         query.fillAnswerRunning(game.get_maze()).send(socket);
         return true;

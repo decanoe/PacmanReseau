@@ -50,8 +50,8 @@ public class LobyRoom extends Room {
         if (query.toNewRoom()) {
             GameRoom new_room = new GameRoom(this);
             rooms.add(new_room);
-            socket.setRoom(new_room);
             query.fillAccept(new_room.getName()).send(socket);
+            socket.setRoom(new_room);
             sendRoomList();
             return true;
         }
