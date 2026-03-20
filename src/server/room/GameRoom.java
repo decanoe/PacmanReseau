@@ -13,13 +13,13 @@ import server.web_interface.WebInterface;
 
 public class GameRoom extends Room {
     private static int ID_GENERATOR = 0;
-    LobyRoom loby;
+    LobbyRoom lobby;
 
     GameRoomState state;
 
-    public GameRoom(LobyRoom loby) {
+    public GameRoom(LobbyRoom lobby) {
         super("GameRoom-" + ID_GENERATOR++);
-        this.loby = loby;
+        this.lobby = lobby;
 
         this.state = new GameRoomRoleState(this);
     }
@@ -56,9 +56,9 @@ public class GameRoom extends Room {
 
     @Override
     protected boolean onReceiveGoToRoom(GoToRoomQuery query, RoomSocketThread socket) {
-        if (query.toLoby()) {
+        if (query.toLobby()) {
             query.fillAccept().send(socket);
-            socket.setRoom(loby);
+            socket.setRoom(lobby);
         }
         else {
             query.fillDenie().send(socket);

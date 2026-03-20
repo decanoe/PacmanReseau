@@ -7,10 +7,10 @@ import model.protocol.queries.GoToRoomQuery;
 import model.protocol.queries.RoomListQuery;
 import server.socket.RoomSocketThread;
 
-public class LobyRoom extends Room {
+public class LobbyRoom extends Room {
     public static ArrayList<GameRoom> rooms = new ArrayList<>();
 
-    public LobyRoom(String name) {
+    public LobbyRoom(String name) {
         super(name);
     }
     protected void removeEmptyRooms() {
@@ -43,7 +43,7 @@ public class LobyRoom extends Room {
     }
     @Override
     protected boolean onReceiveGoToRoom(GoToRoomQuery query, RoomSocketThread socket) {
-        if (query.toLoby()) {
+        if (query.toLobby()) {
             query.fillDenie().send(socket);
             return true;
         }

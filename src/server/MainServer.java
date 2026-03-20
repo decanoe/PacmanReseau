@@ -5,15 +5,15 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import server.room.LobyRoom;
+import server.room.LobbyRoom;
 import server.room.LoginRoom;
 import server.socket.RoomSocketThread;
 
 public class MainServer {
     public static ArrayList<RoomSocketThread> players = new ArrayList<>();
 
-    public static LobyRoom loby = new LobyRoom("Loby");
-    public static LoginRoom login = new LoginRoom(loby);
+    public static LobbyRoom lobby = new LobbyRoom("Lobby");
+    public static LoginRoom login = new LoginRoom(lobby);
 
 	public static void main(String[] args) {
 		int p = 2000; // le port d’écoute

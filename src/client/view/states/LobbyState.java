@@ -22,16 +22,16 @@ import model.protocol.data.RoomInfo;
 import model.protocol.queries.GoToRoomQuery;
 import model.protocol.queries.RoomListQuery;
 
-public class LobyState extends WindowState {
+public class LobbyState extends WindowState {
     JPanel room_list;
 
-    public LobyState(Window window, ClientSocketThread socket) {
+    public LobbyState(Window window, ClientSocketThread socket) {
         super(window, socket);
     }
 
     @Override
     public void createInterface(JPanel panel, JFrame frame) {
-        frame.setTitle(Window.WINDOW_TITLE + " - " + "loby");
+        frame.setTitle(Window.WINDOW_TITLE + " - " + "lobby");
         panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
         panel.setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();

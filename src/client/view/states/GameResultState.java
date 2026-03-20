@@ -41,7 +41,7 @@ public class GameResultState extends GameState {
         buttonQuitter.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                new GoToRoomQuery(GoToRoomQuery.RoomType.Loby).send(socket);
+                new GoToRoomQuery(GoToRoomQuery.RoomType.Lobby).send(socket);
             }
         });
     }

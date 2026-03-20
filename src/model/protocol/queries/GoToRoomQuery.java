@@ -10,7 +10,7 @@ public final class GoToRoomQuery extends QueryClaim {
         public static final String NAME = "room_name";
     }
 
-    public enum RoomType { Old, New, Loby }
+    public enum RoomType { Old, New, Lobby }
     protected RoomType roomType = RoomType.Old;
     protected String room_name = null;
 
@@ -53,8 +53,8 @@ public final class GoToRoomQuery extends QueryClaim {
     public Boolean toNewRoom () {
         return roomType == RoomType.New;
     }
-    public Boolean toLoby () {
-        return roomType == RoomType.Loby;
+    public Boolean toLobby () {
+        return roomType == RoomType.Lobby;
     }
     public String getRoomName() {
         return room_name;

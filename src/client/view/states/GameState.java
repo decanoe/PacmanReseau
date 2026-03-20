@@ -61,7 +61,7 @@ public abstract class GameState extends WindowState {
 
         quit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent ev) {
-                new GoToRoomQuery(GoToRoomQuery.RoomType.Loby).send(socket);
+                new GoToRoomQuery(GoToRoomQuery.RoomType.Lobby).send(socket);
             }
         });
     }
@@ -76,8 +76,8 @@ public abstract class GameState extends WindowState {
 
     @Override
     protected boolean onReceiveGoToRoom(GoToRoomQuery query, ClientSocketThread socket) {
-        if (query.getSuccess() && query.toLoby()) {
-            window.changeState(new LobyState(window, socket));
+        if (query.getSuccess() && query.toLobby()) {
+            window.changeState(new LobbyState(window, socket));
         }
         return true;
     }

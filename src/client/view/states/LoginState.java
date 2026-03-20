@@ -93,7 +93,7 @@ public class LoginState extends WindowState {
         if (query.getSuccess()) {
             socket.setPlayerName(query.getLogin());
             new InfosQuery().fillAnswer(socket).send(socket);
-            window.changeState(new LobyState(window, socket));
+            window.changeState(new LobbyState(window, socket));
         }
         else {
             debug_label.setText("Informations de connection incorrectes");
