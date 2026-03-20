@@ -105,7 +105,7 @@ public class PacmanGame extends Game {
             actions.add(agent.get_action(maze, are_ghost_scared()));
         }
         for (Agent agent : agents) {
-            AgentAction action = actions.removeFirst();
+            AgentAction action = actions.remove(0);
             if (maze.isLegalMove(agent.get_position(), action)) moveAgent(agent, action);
             else {
                 action = agent.get_default_action();

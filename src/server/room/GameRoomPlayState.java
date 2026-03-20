@@ -60,11 +60,11 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         int ghosts_counter = 0, pacmans_counter = 0;
         for (Entry<RoomSocketThread,Choice> entry : choices.entrySet()) {
             switch (entry.getValue()) {
-                case Choice.Pacman:
+                case Pacman:
                     if (pacmans_counter >= pacmans.size()) break;
                     mapPlayerToAgent(entry.getKey(), pacmans.get(pacmans_counter++));
                     break;
-                case Choice.Ghost:
+                case Ghost:
                     if (ghosts_counter >= ghosts.size()) break;
                     mapPlayerToAgent(entry.getKey(), ghosts.get(ghosts_counter++));
                     break;
