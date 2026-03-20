@@ -12,10 +12,10 @@ import client.socket.ClientSocketThread;
 import client.view.PanelPacmanGame;
 import model.game.agent.AgentAction.Direction;
 import model.game.maze.Maze;
-import model.protocol.Queries.AgentMovementQuery;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.GameStateQuery;
-import model.protocol.Queries.GameStateQuery.WinState;
+import model.protocol.queries.AgentMovementQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.GameStateQuery.WinState;
 
 public class GamePlayState extends GameState implements KeyListener {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;

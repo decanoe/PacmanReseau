@@ -1,10 +1,11 @@
 package server.room;
 
-import model.protocol.Queries.AgentMovementQuery;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.CosmeticsQuery;
-import model.protocol.Queries.GameStateQuery;
-import model.protocol.Queries.GoToRoomQuery;
+import model.protocol.data.RoomInfo;
+import model.protocol.queries.AgentMovementQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.CosmeticsQuery;
+import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.GoToRoomQuery;
 import server.socket.RoomSocketThread;
 import server.web_interface.WebInterface;
 
@@ -21,6 +22,9 @@ public class GameRoom extends Room {
         this.state = new GameRoomRoleState(this);
     }
 
+    public RoomInfo toRoomInfo() {
+        return new RoomInfo(this.name, this.nbPlayers());
+    }
     public void setState(GameRoomState state) {
         this.state = state;
     }

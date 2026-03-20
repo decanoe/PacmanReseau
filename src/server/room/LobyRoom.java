@@ -1,10 +1,9 @@
 package server.room;
 
 import java.util.ArrayList;
-import java.util.ListIterator;
 
-import model.protocol.Queries.GoToRoomQuery;
-import model.protocol.Queries.RoomListQuery;
+import model.protocol.queries.GoToRoomQuery;
+import model.protocol.queries.RoomListQuery;
 import server.socket.RoomSocketThread;
 
 public class LobyRoom extends Room {
@@ -12,26 +11,38 @@ public class LobyRoom extends Room {
 
     public LobyRoom(String name) {
         super(name);
-    }
-    protected void removeEmptyRooms() {
-        ListIterator<GameRoom> iter = rooms.listIterator();
-        while(iter.hasNext()){
-            if(iter.next().isEmpty()){
-                iter.remove();
-            }
+
+        for (int index = 0; index < 128; index++) {
+            rooms.add(new GameRoom(this));
         }
     }
+    protected void removeEmptyRooms() {
+        // ListIterator<GameRoom> iter = rooms.listIterator();
+        // while(iter.hasNext()){
+        //     if(iter.next().isEmpty()){
+        //         iter.remove();
+        //     }
+        // }
+    }
     protected void sendRoomList(RoomSocketThread socket) {
-        new RoomListQuery(rooms).send(socket);
+        RoomListQuery query = new RoomListQuery();
+        for (GameRoom room : rooms) {
+            query.fillAnswer(room.toRoomInfo());
+        }
+        query.send(socket);
     }
     protected void sendRoomList() {
-        sendToAll(new RoomListQuery(rooms));
+        RoomListQuery query = new RoomListQuery();
+        for (GameRoom room : rooms) {
+            query.fillAnswer(room.toRoomInfo());
+        }
+        sendToAll(query);
     }
 
     @Override
     protected boolean onReceiveRoomList(RoomListQuery query, RoomSocketThread socket) {
         removeEmptyRooms();
-        query.fillAnswer(rooms).send(socket);
+        sendRoomList(socket);
         return true;
     }
     @Override

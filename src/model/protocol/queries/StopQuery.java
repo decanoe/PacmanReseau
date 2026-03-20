@@ -1,4 +1,4 @@
-package model.protocol.Queries;
+package model.protocol.queries;
 
 import model.protocol.Query;
 

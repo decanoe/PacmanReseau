@@ -1,25 +1,30 @@
 package client.view.states;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.SwingConstants;
 
 import client.socket.ClientSocketThread;
 import client.view.Window;
-import model.protocol.Queries.InfosQuery;
-import model.protocol.Queries.LoginQuery;
-import model.protocol.Queries.LoginSaltQuery;
+import model.protocol.queries.InfosQuery;
+import model.protocol.queries.LoginQuery;
+import model.protocol.queries.LoginSaltQuery;
 
 public class LoginState extends WindowState {
     JLabel debug_label;
     TextField nameField;
-    TextField pwdField;
+    JPasswordField pwdField;
     JButton button;
     public LoginState(Window window, ClientSocketThread socket) {
         super(window, socket);
@@ -27,25 +32,31 @@ public class LoginState extends WindowState {
 
     @Override
     public void createInterface(JPanel panel, JFrame frame) {
-        panel.setLayout(new GridLayout(4, 1));
+        panel.setLayout(new GridLayout(3, 1));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
-        panel.add(new JLabel("Entrez vos informations de connection"));
+        JLabel label = new JLabel("Entrez vos informations de connection", SwingConstants.CENTER);
+        label.setFont(new Font(label.getFont().getName(), Font.PLAIN, 20));
+        panel.add(label);
 
         JPanel info_panel = new JPanel();
         info_panel.setLayout(new GridLayout(3, 2));
+        info_panel.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 0));
         panel.add(info_panel);
 
-        nameField = new TextField("");
+        nameField = new TextField("noe");
         info_panel.add(new JLabel("Pseudo : "));
         info_panel.add(nameField);
-        pwdField = new TextField("");
+        pwdField = new JPasswordField("test@123");
         info_panel.add(new JLabel("Mot de passe : "));
         info_panel.add(pwdField);
 
         debug_label = new JLabel("");
-        panel.add(debug_label);
+        debug_label.setForeground(Color.RED);
+        info_panel.add(debug_label);
 
         button = new JButton("Valider");
+        button.setFont(new Font(button.getFont().getName(), Font.PLAIN, 20));
         panel.add(button);
 
         button.addActionListener(new ActionListener() {
@@ -72,7 +83,7 @@ public class LoginState extends WindowState {
             pwdField.setEnabled(true);
         }
         else {
-            new LoginQuery(query.getLogin(), pwdField.getText(), query.getSalt()).send(socket);
+            new LoginQuery(query.getLogin(), new String(pwdField.getPassword()), query.getSalt()).send(socket);
         }
 
         return true;

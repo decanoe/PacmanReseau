@@ -13,9 +13,9 @@ import javax.swing.JPanel;
 import client.socket.ClientSocketThread;
 import client.view.Window;
 import model.game.maze.Maze;
-import model.protocol.Queries.CosmeticsQuery;
-import model.protocol.Queries.GameStateQuery;
-import model.protocol.Queries.GoToRoomQuery;
+import model.protocol.queries.CosmeticsQuery;
+import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.GoToRoomQuery;
 
 public abstract class GameState extends WindowState {
     String room_name;

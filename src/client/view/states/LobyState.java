@@ -1,23 +1,26 @@
 package client.view.states;
 
-import java.awt.GridLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
+import javax.swing.SwingConstants;
 
 import client.socket.ClientSocketThread;
 import client.view.Window;
-import model.protocol.Queries.GoToRoomQuery;
-import model.protocol.Queries.RoomListQuery;
+import model.protocol.data.RoomInfo;
+import model.protocol.queries.GoToRoomQuery;
+import model.protocol.queries.RoomListQuery;
 
 public class LobyState extends WindowState {
     JPanel room_list;
@@ -29,16 +32,31 @@ public class LobyState extends WindowState {
     @Override
     public void createInterface(JPanel panel, JFrame frame) {
         frame.setTitle(Window.WINDOW_TITLE + " - " + "loby");
-        panel.setLayout(new GridLayout(3, 1));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.BOTH;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.weightx = 1;
+        c.weighty = 0.5;
 
-        panel.add(new JLabel("Choisissez une partie"));
+        JLabel label = new JLabel("Choisissez une partie", SwingConstants.CENTER);
+        label.setFont(new Font(label.getFont().getName(), Font.PLAIN, 20));
+        panel.add(label, c);
         
         room_list = new JPanel();
         room_list.setLayout(new BoxLayout(room_list, BoxLayout.Y_AXIS));
-        panel.add(new JScrollPane(room_list));
+        room_list.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        c.gridy = 1;
+        c.weighty = 2;
+        panel.add(new JScrollPane(room_list), c);
 
         JButton refresh_button = new JButton("Rafraichir");
-        panel.add(refresh_button);
+        refresh_button.setFont(new Font(label.getFont().getName(), Font.PLAIN, 20));
+        c.gridy = 2;
+        c.weighty = 0.25;
+        panel.add(refresh_button, c);
 
         refresh_button.addActionListener(new ActionListener() {
             @Override
@@ -60,43 +78,43 @@ public class LobyState extends WindowState {
         refreshRoomList(query.getRoomsInfos());
         return true;
     }
-    protected void refreshRoomList(JSONArray rooms) {
+    protected void refreshRoomList(ArrayList<RoomInfo> infos) {
         room_list.removeAll();
 
-        for (int i = 0; i < rooms.length(); i++) {
-            JSONObject room_info = rooms.getJSONObject(i);
-
+        // new room option
+        {
+            JPanel new_room = new JPanel();
+            new_room.setLayout(new BoxLayout(new_room, BoxLayout.X_AXIS));
+            JButton button = new JButton("nouvelle salle");
+            new_room.add(button);
+            
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent event) {
+                    new GoToRoomQuery(GoToRoomQuery.RoomType.New).send(socket);
+                }
+            });
+            room_list.add(new_room);
+        }
+        
+        for (RoomInfo info : infos) {
             JPanel room = new JPanel();
             room.setLayout(new BoxLayout(room, BoxLayout.X_AXIS));
 
-            room.add(new JLabel(room_info.getString("name")));
-            room.add(new JLabel("(" + room_info.getInt("nb_players") + " joueurs)"));
-            JButton button = new JButton("entrer");
+            room.add(new JLabel(info.name));
+            room.add(new JLabel(" (" + info.player_count + " joueurs) "));
+            JButton button = new JButton("rejoindre");
             room.add(button);
 
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent event) {
-                    new GoToRoomQuery(room_info.getString("name")).send(socket);
+                    new GoToRoomQuery(info.name).send(socket);
                 }
             });
 
             room_list.add(room);
         }
-
-        // new room option
-        JPanel new_room = new JPanel();
-        new_room.setLayout(new BoxLayout(new_room, BoxLayout.X_AXIS));
-        JButton button = new JButton("nouvelle salle");
-        new_room.add(button);
-
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent event) {
-                new GoToRoomQuery(GoToRoomQuery.RoomType.New).send(socket);
-            }
-        });
-        room_list.add(new_room);
 
         window.repaint();
     }

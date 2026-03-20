@@ -2,7 +2,7 @@ package model.protocol;
 
 import org.json.JSONObject;
 
-import model.protocol.Queries.*;
+import model.protocol.queries.*;
 import model.socket.SocketThread;
 
 public class QueryManager<T extends SocketThread> {

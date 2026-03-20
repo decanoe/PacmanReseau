@@ -8,8 +8,8 @@ import java.net.Socket;
 
 import org.json.JSONObject;
 
-import model.protocol.Queries.InfosQuery;
-import model.protocol.Queries.StopQuery;
+import model.protocol.queries.InfosQuery;
+import model.protocol.queries.StopQuery;
 
 public abstract class SocketThread extends Thread {
     private final static int MAX_PRINT_SIZE = 100;

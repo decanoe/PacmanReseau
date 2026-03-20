@@ -1,7 +1,7 @@
 package server.room;
 
-import model.protocol.Queries.LoginQuery;
-import model.protocol.Queries.LoginSaltQuery;
+import model.protocol.queries.LoginQuery;
+import model.protocol.queries.LoginSaltQuery;
 import server.MainServer;
 import server.socket.RoomSocketThread;
 import server.web_interface.WebInterface;

@@ -10,8 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import client.socket.ClientSocketThread;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.GameStateQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.GameStateQuery;
 
 public class GameRoleState extends GameState {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;

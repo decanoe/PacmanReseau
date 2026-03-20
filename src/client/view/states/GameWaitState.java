@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import client.socket.ClientSocketThread;
 import client.view.Window;
-import model.protocol.Queries.GameStateQuery;
+import model.protocol.queries.GameStateQuery;
 
 public class GameWaitState extends GameState {
 

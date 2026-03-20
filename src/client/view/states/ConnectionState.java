@@ -1,5 +1,7 @@
 package client.view.states;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
@@ -8,10 +10,12 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import client.socket.ClientSocketThread;
 import client.view.Window;
@@ -28,12 +32,16 @@ public class ConnectionState extends WindowState {
 
     @Override
     public void createInterface(JPanel panel, JFrame frame) {
-        panel.setLayout(new GridLayout(4, 1));
+        panel.setLayout(new GridLayout(3, 1));
+        panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
 
-        panel.add(new JLabel("Entrez les informations du serveur de jeu"));
+        JLabel label = new JLabel("Entrez les informations du serveur de jeu", SwingConstants.CENTER);
+        label.setFont(new Font(label.getFont().getName(), Font.PLAIN, 20));
+        panel.add(label);
 
         JPanel info_panel = new JPanel();
         info_panel.setLayout(new GridLayout(3, 2));
+        info_panel.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 0));
         panel.add(info_panel);
 
         TextField adressField = new TextField(DEFAULT_ADRESS);
@@ -44,9 +52,11 @@ public class ConnectionState extends WindowState {
         info_panel.add(portField);
 
         JLabel debug_label = new JLabel(debug_string);
-        panel.add(debug_label);
+        debug_label.setForeground(Color.RED);
+        info_panel.add(debug_label);
 
         JButton button = new JButton("Valider");
+        button.setFont(new Font(button.getFont().getName(), Font.PLAIN, 20));
         panel.add(button);
 
         button.addActionListener(new ActionListener() {
@@ -56,7 +66,7 @@ public class ConnectionState extends WindowState {
                     socket = new ClientSocketThread(new Socket(adressField.getText(), Integer.parseInt(portField.getText())), "not_logged_yet");
                     socket.start();
                     
-                    window.changeState(new LobyState(window, socket));
+                    window.changeState(new LoginState(window, socket));
                 }
                 catch(UnknownHostException e) {
                     debug_label.setText(e.getMessage());

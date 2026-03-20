@@ -11,12 +11,12 @@ import model.game.PacmanGame;
 import model.game.agent.Agent;
 import model.game.agent.behavior.ThreadControlledBehavior;
 import model.game.maze.Maze.EntityType;
-import model.protocol.Queries.AgentMovementQuery;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.CosmeticsQuery;
-import model.protocol.Queries.ChoseRoleQuery.Choice;
-import model.protocol.Queries.GameStateQuery.WinState;
-import model.protocol.Queries.GameStateQuery;
+import model.protocol.queries.AgentMovementQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.CosmeticsQuery;
+import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.ChoseRoleQuery.Choice;
+import model.protocol.queries.GameStateQuery.WinState;
 import server.socket.RoomSocketThread;
 import server.web_interface.WebInterface;
 

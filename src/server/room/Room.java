@@ -2,9 +2,6 @@ package server.room;
 
 import java.util.ArrayList;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import model.protocol.Query;
 import model.protocol.QueryManager;
 import server.socket.RoomSocketThread;
@@ -53,18 +50,6 @@ public abstract class Room extends QueryManager<RoomSocketThread> {
     }
     public String getDebugName() {
         return getName();
-    }
-    public JSONObject getJson() {
-        JSONObject obj = new JSONObject();
-        obj.put("name", getName());
-        obj.put("nb_players", opened_sokets.size());
-
-        JSONArray players = new JSONArray();
-        for (RoomSocketThread socket : opened_sokets) {
-            players.put(socket.getPlayerLogin());
-        }
-        obj.put("players", players);
-        return obj;
     }
     
     protected void onRoomEnter(RoomSocketThread socket) {}

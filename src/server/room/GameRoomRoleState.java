@@ -2,10 +2,10 @@ package server.room;
 
 import java.util.HashMap;
 
-import model.protocol.Queries.AgentMovementQuery;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.GameStateQuery;
-import model.protocol.Queries.GameStateQuery.WinState;
+import model.protocol.queries.AgentMovementQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.GameStateQuery.WinState;
 import server.socket.RoomSocketThread;
 
 public class GameRoomRoleState extends GameRoomState {

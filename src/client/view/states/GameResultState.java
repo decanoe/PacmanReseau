@@ -9,7 +9,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import model.protocol.Queries.GoToRoomQuery;
+import model.protocol.queries.GoToRoomQuery;
 
 public class GameResultState extends GameState {
     boolean pacmans_won;

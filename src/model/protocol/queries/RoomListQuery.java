@@ -1,4 +1,4 @@
-package model.protocol.Queries;
+package model.protocol.queries;
 
 import java.util.ArrayList;
 
@@ -6,24 +6,25 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import model.protocol.Query;
-import server.room.GameRoom;
-import server.room.Room;
+import model.protocol.data.RoomInfo;
 
 public final class RoomListQuery extends Query {
     private static final class TOKEN {
         public static final String ROOMS = "rooms";
     }
 
-    protected JSONArray array;
-    public RoomListQuery() {}
-    public RoomListQuery(ArrayList<GameRoom> rooms) {
-        fillAnswer(rooms);
-    }
+    protected ArrayList<RoomInfo> rooms;
+    public RoomListQuery() { this.rooms = new ArrayList<>(); }
     public RoomListQuery(JSONObject json) {
         super(json);
 
         if (isAnswer()) {
-            this.array = json.getJSONArray(TOKEN.ROOMS);
+            rooms = new ArrayList<>();
+            JSONArray array = json.getJSONArray(TOKEN.ROOMS);
+
+            for (int i = 0; i < array.length(); i++) {
+                rooms.add(new RoomInfo(array.getJSONObject(i)));
+            }
         }
     }
 
@@ -35,23 +36,26 @@ public final class RoomListQuery extends Query {
         JSONObject json = super.toJson();
 
         if (isAnswer()) {
+            JSONArray array = new JSONArray();
+
+            for (RoomInfo info : rooms) {
+                array.put(info.toJson());
+            }
+
             json.put(TOKEN.ROOMS, array);
         }
 
         return json;
     }
 
-    public RoomListQuery fillAnswer(ArrayList<GameRoom> rooms) {
-        array = new JSONArray();
-        for(Room room: rooms){
-            array.put(room.getJson());
-        }
+    public RoomListQuery fillAnswer(RoomInfo info) {
         this.setAnswer();
+        this.rooms.add(info);
         
         return this;
     }
 
-    public JSONArray getRoomsInfos() {
-        return array;
+    public ArrayList<RoomInfo> getRoomsInfos() {
+        return rooms;
     }
 }

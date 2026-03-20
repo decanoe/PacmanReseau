@@ -1,8 +1,8 @@
 package server.room;
 
-import model.protocol.Queries.AgentMovementQuery;
-import model.protocol.Queries.ChoseRoleQuery;
-import model.protocol.Queries.GameStateQuery;
+import model.protocol.queries.AgentMovementQuery;
+import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.GameStateQuery;
 import server.socket.RoomSocketThread;
 
 public abstract class GameRoomState {
