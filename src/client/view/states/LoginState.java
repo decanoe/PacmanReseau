@@ -44,10 +44,10 @@ public class LoginState extends WindowState {
         info_panel.setBorder(BorderFactory.createEmptyBorder(50, 0, 50, 0));
         panel.add(info_panel);
 
-        nameField = new TextField("noe");
+        nameField = new TextField("");
         info_panel.add(new JLabel("Pseudo : "));
         info_panel.add(nameField);
-        pwdField = new JPasswordField("test@123");
+        pwdField = new JPasswordField("");
         info_panel.add(new JLabel("Mot de passe : "));
         info_panel.add(pwdField);
 
