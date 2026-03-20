@@ -48,6 +48,10 @@ public final class RoomListQuery extends Query {
         return json;
     }
 
+    public RoomListQuery fillAnswer() {
+        this.setAnswer();
+        return this;
+    }
     public RoomListQuery fillAnswer(RoomInfo info) {
         this.setAnswer();
         this.rooms.add(info);

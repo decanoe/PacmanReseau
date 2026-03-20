@@ -1,6 +1,7 @@
 package server.room;
 
 import java.util.ArrayList;
+import java.util.ListIterator;
 
 import model.protocol.queries.GoToRoomQuery;
 import model.protocol.queries.RoomListQuery;
@@ -11,37 +12,32 @@ public class LobyRoom extends Room {
 
     public LobyRoom(String name) {
         super(name);
-
-        for (int index = 0; index < 128; index++) {
-            rooms.add(new GameRoom(this));
-        }
     }
     protected void removeEmptyRooms() {
-        // ListIterator<GameRoom> iter = rooms.listIterator();
-        // while(iter.hasNext()){
-        //     if(iter.next().isEmpty()){
-        //         iter.remove();
-        //     }
-        // }
+        ListIterator<GameRoom> iter = rooms.listIterator();
+        while(iter.hasNext()){
+            if(iter.next().isEmpty()){
+                iter.remove();
+            }
+        }
+    }
+    protected RoomListQuery createRoomListQuery() {
+        removeEmptyRooms();
+        RoomListQuery query = new RoomListQuery();
+        for (GameRoom room : rooms) {
+            query.fillAnswer(room.toRoomInfo());
+        }
+        return query.fillAnswer();
     }
     protected void sendRoomList(RoomSocketThread socket) {
-        RoomListQuery query = new RoomListQuery();
-        for (GameRoom room : rooms) {
-            query.fillAnswer(room.toRoomInfo());
-        }
-        query.send(socket);
+        createRoomListQuery().send(socket);
     }
     protected void sendRoomList() {
-        RoomListQuery query = new RoomListQuery();
-        for (GameRoom room : rooms) {
-            query.fillAnswer(room.toRoomInfo());
-        }
-        sendToAll(query);
+        sendToAll(createRoomListQuery());
     }
 
     @Override
     protected boolean onReceiveRoomList(RoomListQuery query, RoomSocketThread socket) {
-        removeEmptyRooms();
         sendRoomList(socket);
         return true;
     }
@@ -76,7 +72,6 @@ public class LobyRoom extends Room {
 
     @Override
     protected void onRoomEnter(RoomSocketThread socket) {
-        removeEmptyRooms();
         sendRoomList(socket);
     }
 }
