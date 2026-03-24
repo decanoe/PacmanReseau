@@ -14,7 +14,9 @@ import model.game.maze.Maze.EntityType;
 import model.protocol.queries.AgentMovementQuery;
 import model.protocol.queries.ChoseRoleQuery;
 import model.protocol.queries.CosmeticsQuery;
+import model.protocol.queries.FullMazeQuery;
 import model.protocol.queries.GameStateQuery;
+import model.protocol.queries.PartialMazeQuery;
 import model.protocol.queries.ChoseRoleQuery.Choice;
 import model.protocol.queries.GameStateQuery.WinState;
 import server.socket.RoomSocketThread;
@@ -37,7 +39,7 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         game.addPropertyChangeListener("turn", this);
         game.addPropertyChangeListener("game_over", this);
 
-        room.sendToAll(new GameStateQuery().fillAnswerRunning(game.get_maze()));
+        sendFullUpdate();
     }
 
     protected void mapPlayerToAgent(RoomSocketThread thread, Agent agent) {
@@ -74,10 +76,18 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
         }
     }
 
-    protected void sendUpdate() {
+    protected void prepareUpdate() {
         game.get_maze().setTurn(game.turn);
         game.get_maze().setGhostsScarred(game.are_ghost_scared());
-        room.sendToAll(new GameStateQuery().fillAnswerRunning(game.get_maze()));
+    }
+    protected void sendFullUpdate() {
+        prepareUpdate();
+        room.sendToAll(new FullMazeQuery().fillAnswer(game.get_maze()));
+    }
+    protected void sendPartialUpdate() {
+        prepareUpdate();
+        room.sendToAll(new PartialMazeQuery().fillAnswer(game.get_maze()));
+        game.get_maze().clearPartial();
     }
 
     @Override
@@ -105,7 +115,12 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
     }
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
-        query.fillAnswerRunning(game.get_maze()).send(socket);
+        query.fillAnswerRunning().send(socket);
+        return true;
+    }
+    @Override
+    protected boolean onReceiveFullMaze(FullMazeQuery query, RoomSocketThread socket) {
+        query.fillAnswer(game.get_maze()).send(socket);
         return true;
     }
     @Override
@@ -135,7 +150,7 @@ public class GameRoomPlayState extends GameRoomState implements PropertyChangeLi
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals("turn")) sendUpdate();
+        if (evt.getPropertyName().equals("turn")) sendPartialUpdate();
         if (evt.getPropertyName().equals("game_over")) onGameOver((boolean)evt.getNewValue());
     }
 }

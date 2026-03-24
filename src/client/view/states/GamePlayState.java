@@ -14,8 +14,10 @@ import model.game.agent.AgentAction.Direction;
 import model.game.maze.Maze;
 import model.protocol.queries.AgentMovementQuery;
 import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.FullMazeQuery;
 import model.protocol.queries.GameStateQuery;
 import model.protocol.queries.GameStateQuery.WinState;
+import model.protocol.queries.PartialMazeQuery;
 
 public class GamePlayState extends GameState implements KeyListener {
     protected ChoseRoleQuery.Choice choice = ChoseRoleQuery.Choice.None;
@@ -70,17 +72,25 @@ public class GamePlayState extends GameState implements KeyListener {
     public void keyTyped(KeyEvent e) {}
 
     @Override
+    protected boolean onReceiveFullMaze(FullMazeQuery query, ClientSocketThread socket) {
+        maze = query.getMaze();
+        maze.set_colors(maze_colors);
+        pacman_panel.setMaze(maze);
+        pacman_panel.repaint();
+        return true;
+    }
+    @Override
+    protected boolean onReceivePartialMaze(PartialMazeQuery query, ClientSocketThread socket) {
+        if (!maze.applyPartialJSON(query.getPartialMaze())) new FullMazeQuery().send(socket);
+        pacman_panel.repaint();
+        return true;
+    }
+    @Override
     protected boolean onReceiveGameState(GameStateQuery query, ClientSocketThread socket) {
         if (!query.isGameRunning()) {
             WinState state = query.getWinState();
             if (state == WinState.None) window.changeState(new GameWaitState(this));
             window.changeState(new GameResultState(this, state == WinState.Pacman));
-        }
-        else {
-            maze = query.getMaze();
-            maze.set_colors(maze_colors);
-            pacman_panel.setMaze(maze);
-            pacman_panel.repaint();
         }
         return true;
     }

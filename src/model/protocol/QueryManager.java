@@ -19,6 +19,9 @@ public class QueryManager<T extends SocketThread> {
         if (PlayerListQuery.ACTION.equals(action))        return onReceivePlayerList(new PlayerListQuery(json), socket);
 
         if (GameStateQuery.ACTION.equals(action))       return onReceiveGameState(new GameStateQuery(json), socket);
+        if (FullMazeQuery.ACTION.equals(action))       return onReceiveFullMaze(new FullMazeQuery(json), socket);
+        if (PartialMazeQuery.ACTION.equals(action))       return onReceivePartialMaze(new PartialMazeQuery(json), socket);
+
         if (AgentMovementQuery.ACTION.equals(action))   return onReceiveAgentMovement(new AgentMovementQuery(json), socket);
         if (CosmeticsQuery.ACTION.equals(action))   return onReceiveCosmeticsQuery(new CosmeticsQuery(json), socket);
         
@@ -39,6 +42,9 @@ public class QueryManager<T extends SocketThread> {
     protected boolean onReceivePlayerList(PlayerListQuery q, T socket) { return true; }
 
     protected boolean onReceiveGameState(GameStateQuery q, T socket) { return true; }
+    protected boolean onReceiveFullMaze(FullMazeQuery q, T socket) { return true; }
+    protected boolean onReceivePartialMaze(PartialMazeQuery q, T socket) { return true; }
+
     protected boolean onReceiveAgentMovement(AgentMovementQuery q, T socket) { return true; }
     protected boolean onReceiveCosmeticsQuery(CosmeticsQuery q, T socket) { return true; }
 }

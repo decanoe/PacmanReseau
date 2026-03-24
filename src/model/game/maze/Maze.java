@@ -57,6 +57,9 @@ public class Maze implements Serializable, Cloneable {
 
 	protected boolean ghosts_scarred;
 
+	protected JSONArray cleared_x = null;
+	protected JSONArray cleared_y = null;
+
 	/**
      * Creates a Maze from a path to a layout file
      * @param filename the path to the layout file
@@ -160,6 +163,9 @@ public class Maze implements Serializable, Cloneable {
 		}
 
 		this.colors = get_default_colors();
+
+		this.cleared_x = new JSONArray();
+		this.cleared_y = new JSONArray();
 	}
 	/**
      * Creates a Maze from a json
@@ -202,6 +208,45 @@ public class Maze implements Serializable, Cloneable {
 		for (int i = 0; i < ghosts_json.length(); i++) {
 			ghosts.add(Agent.fromJSON(ghosts_json.getJSONObject(i)));
 		}
+	}
+	/**
+     * Applies the partial informations given
+     * @param json the json to apply
+	 * @return true if no turn is missing, false else
+     */
+    public boolean applyPartialJSON(JSONObject json) {
+		this.turn = Math.max(this.turn, json.getInt("turn"));
+
+		if (json.has("cleared_x")) {
+			JSONArray x = json.getJSONArray("cleared_x");
+			JSONArray y = json.getJSONArray("cleared_y");
+			for (int i = 0; i < x.length(); i++) {
+				clearStaticEntity(x.getInt(i), y.getInt(i));
+			}
+		}
+
+		this.ghosts_scarred = json.getBoolean("ghosts_scarred");
+
+		if (this.turn == json.getInt("turn")) {
+			JSONArray pacmans_json = json.getJSONArray("pacmans");
+			JSONArray ghosts_json = json.getJSONArray("ghosts");
+
+			for (int i = 0; i < pacmans_json.length(); i++) {
+				pacmans.get(i).applyPartialJSON(pacmans_json.getJSONObject(i));
+			}
+			for (int i = 0; i < ghosts_json.length(); i++) {
+				ghosts.get(i).applyPartialJSON(ghosts_json.getJSONObject(i));
+			}
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	public void clearPartial() {
+		if (this.cleared_x != null) cleared_x.clear();
+		if (this.cleared_y != null) cleared_y.clear();
 	}
 
 	/**
@@ -334,6 +379,9 @@ public class Maze implements Serializable, Cloneable {
 		if (isWall(x, y)) return;
 		else if (isFood(x, y)) setFood(x, y, false);
 		else if (isCapsule(x, y)) setCapsule(x, y, false);
+
+		if (cleared_x != null) cleared_x.put(x);
+		if (cleared_y != null) cleared_y.put(y);
 	}
 	/**
 	 * checks if the cell contains the given entity
@@ -436,21 +484,21 @@ public class Maze implements Serializable, Cloneable {
 	 * Removes from the list of agent positions all positions that are not in the maze
 	 */
 	public void removeOutsideAgents() {
-		var p_iter = pacmans.listIterator();
-        while (p_iter.hasNext()) {
-            PositionAgent pos = p_iter.next().get_position();
-            if (pos.getX() < 0 || pos.getY() < 0) {
-                p_iter.remove();
-            }
-        }
+		// var p_iter = pacmans.listIterator();
+        // while (p_iter.hasNext()) {
+        //     PositionAgent pos = p_iter.next().get_position();
+        //     if (pos.getX() < 0 || pos.getY() < 0) {
+        //         p_iter.remove();
+        //     }
+        // }
 		
-		var g_iter = ghosts.listIterator();
-        while (g_iter.hasNext()) {
-            PositionAgent pos = g_iter.next().get_position();
-            if (pos.getX() < 0 || pos.getY() < 0) {
-                g_iter.remove();
-            }
-        }
+		// var g_iter = ghosts.listIterator();
+        // while (g_iter.hasNext()) {
+        //     PositionAgent pos = g_iter.next().get_position();
+        //     if (pos.getX() < 0 || pos.getY() < 0) {
+        //         g_iter.remove();
+        //     }
+        // }
 	}
 
 	/**
@@ -598,6 +646,29 @@ public class Maze implements Serializable, Cloneable {
 
 		json.put("turn", turn);
 		json.put("ghosts_scarred", ghosts_scarred);
+
+		return json;
+	}
+	public JSONObject toPartialJSON() {
+		JSONObject json = new JSONObject();
+		json.put("turn", turn);
+		json.put("ghosts_scarred", ghosts_scarred);
+
+		if (cleared_x != null && !cleared_x.isEmpty()) json.put("cleared_x", cleared_x);
+		if (cleared_y != null && !cleared_y.isEmpty()) json.put("cleared_y", cleared_y);
+
+		
+		JSONArray pacmans_json = new JSONArray();
+		JSONArray ghosts_json = new JSONArray();
+
+		for (Agent pacman : pacmans) {
+			pacmans_json.put(pacman.toPartialJSON());
+		}
+		for (Agent ghost : ghosts) {
+			ghosts_json.put(ghost.toPartialJSON());
+		}
+		json.put("pacmans", pacmans_json);
+		json.put("ghosts", ghosts_json);
 
 		return json;
 	}

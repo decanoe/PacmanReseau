@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 
 import client.socket.ClientSocketThread;
 import model.protocol.queries.ChoseRoleQuery;
+import model.protocol.queries.FullMazeQuery;
 import model.protocol.queries.GameStateQuery;
 import model.protocol.queries.PlayerListQuery;
 
@@ -82,9 +83,13 @@ public class GameRoleState extends GameState {
             if (choice == ChoseRoleQuery.Choice.None) {
                 window.changeState(new GameWaitState(this));
             }
-            else {
-                window.changeState(new GamePlayState(this, query.getMaze()));
-            }
+        }
+        return true;
+    }
+    @Override
+    protected boolean onReceiveFullMaze(FullMazeQuery query, ClientSocketThread socket) {
+        if (choice != ChoseRoleQuery.Choice.None) {
+            window.changeState(new GamePlayState(this, query.getMaze()));
         }
         return true;
     }

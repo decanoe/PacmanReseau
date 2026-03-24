@@ -5,6 +5,7 @@ import model.protocol.data.RoomInfo;
 import model.protocol.queries.AgentMovementQuery;
 import model.protocol.queries.ChoseRoleQuery;
 import model.protocol.queries.CosmeticsQuery;
+import model.protocol.queries.FullMazeQuery;
 import model.protocol.queries.GameStateQuery;
 import model.protocol.queries.GoToRoomQuery;
 import model.protocol.queries.PlayerListQuery;
@@ -68,6 +69,10 @@ public class GameRoom extends Room {
     @Override
     protected boolean onReceiveGameState(GameStateQuery query, RoomSocketThread socket) {
         return state.onReceiveGameState(query, socket);
+    }
+    @Override
+    protected boolean onReceiveFullMaze(FullMazeQuery query, RoomSocketThread socket) {
+        return state.onReceiveFullMaze(query, socket);
     }
     @Override
     protected boolean onReceiveChoseRole(ChoseRoleQuery query, RoomSocketThread socket) {

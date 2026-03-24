@@ -87,7 +87,7 @@ public abstract class SocketThread extends Thread {
                     break;
                 }
                 if (json.length() < MAX_PRINT_SIZE) println("a reçu : |"+json+"|");
-                else println("a reçu : |"+json.substring(0, MAX_PRINT_SIZE)+"...|");
+                else println("a reçu : |"+json.substring(0, MAX_PRINT_SIZE)+"...| (" + json.length() + ")");
             } while (onQuery(new JSONObject(json)));
 
             sendStop();

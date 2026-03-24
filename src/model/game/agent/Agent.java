@@ -152,4 +152,13 @@ public abstract class Agent {
 
         return null;
     }
+
+    public JSONObject toPartialJSON() {
+        JSONObject json = new JSONObject();
+        json.put(TOKEN.POSITION, position.toJSON());
+        return json;
+    }
+    public void applyPartialJSON(JSONObject json) {
+        this.position = PositionAgent.fromJSON(json.getJSONObject(TOKEN.POSITION));
+    }
 }
