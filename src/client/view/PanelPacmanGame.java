@@ -149,13 +149,12 @@ public class PanelPacmanGame extends JPanel {
 		int px = agent.get_position().getX();
 		int py = agent.get_position().getY();
 		Color[] colors = agent.get_colors();
-		if (m.getGhostsScarred()) colors[0] = ghostScarredColor;
 
 		if((px != -1) || (py != -1)){
 			double posx = (px + .5 - size * sizeGhostWidth / 2) * draw_cell_width;
 			double posy = (py + .5 - size / 2) * draw_cell_height;
 			
-			g.setColor(colors[0]);
+			g.setColor(m.getGhostsScarred() ? ghostScarredColor : colors[0]);
 			
 			double width = draw_cell_width * size * sizeGhostWidth;
 			double height = draw_cell_height * size;

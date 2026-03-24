@@ -28,7 +28,7 @@ public class GameResultState extends GameState {
 
         JButton buttonRejouer = new JButton("Rejouer");
         panel.add(buttonRejouer);
-        JButton buttonQuitter = new JButton("Loby");
+        JButton buttonQuitter = new JButton("Lobby");
         panel.add(buttonQuitter);
 
         buttonRejouer.addActionListener(new ActionListener() {

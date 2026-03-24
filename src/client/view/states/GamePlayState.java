@@ -26,6 +26,7 @@ public class GamePlayState extends GameState implements KeyListener {
     public GamePlayState(GameState previous_state, Maze maze) {
         super(previous_state);
         this.maze = maze;
+        maze.set_colors(maze_colors);
     }
 
     PanelPacmanGame pacman_panel;
